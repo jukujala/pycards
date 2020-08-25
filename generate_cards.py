@@ -23,8 +23,6 @@ def mindx(c, x=6):
   """
   r1 = dx(x)
   r2 = dx(x)
-  if r1 == 1 and r2 == 1:
-    return -1
   if random.random() <= c:
     return r1
   else:
@@ -37,25 +35,16 @@ def generate_soldier_cards(state_dict):
     'side': state_dict['side'],
     'state': state_dict['state'],
     'land': mindx(state_dict['land'], DIE_SIZE),
-    'crowns': mindx(state_dict['crowns'], DIE_SIZE),
-    'sea': 0,
+    'trump': state_dict['trump'],
     'deck': state_dict['side'],
     'neutral_deck_propensity': state_dict['neutral_deck_propensity']
   }
-  reinforce_prop = state_dict['reinforcements']
-  card['reinforcements'] = 1 if random.random() < reinforce_prop else 0
-  if card['land'] > 2:
-    card['reinforcements'] += 1
-  if card['crowns'] > 2:
-    card['reinforcements'] += 1
-  if state_dict['sea'] > random.random():
-    card['sea'] = random.randint(1, 2)
   return card
 
 
 def get_expected_state_soldier_stats(state_dict):
   d = {}
-  for k in  ['land', 'crowns']:
+  for k in  ['land']:
     d[k] = np.mean([mindx(state_dict[k], DIE_SIZE) for i in range(0, 2000)])
   return d
 
@@ -68,8 +57,11 @@ def good_state_cards(state_cards, expected_stats):
   :return:
   """
   soldier_df = pd.DataFrame(state_cards)
-  state_stats = soldier_df.agg({"land": "mean", "crowns": "mean"}).to_dict()
-  good_cards = all([abs(expected_stats[k] - state_stats[k]) < 0.1 for k in ["land", "crowns"]])
+  if len(soldier_df) < 4:
+    good_cards = True
+  else:
+    state_stats = soldier_df.agg({"land": "mean"}).to_dict()
+    good_cards = all([abs(expected_stats[k] - state_stats[k]) < 0.1 for k in ["land"]])
   return good_cards
 
 
@@ -101,8 +93,6 @@ def assigns_cards_to_neutral_deck(cards, n):
                 if cards[j]['type'] == 'soldier':
                     if random.random() < 0.1:
                         cards[j]['land'] += 1
-                    if random.random() < 0.1:
-                        cards[j]['crowns'] += 1
                 break
     return cards
 
@@ -117,8 +107,8 @@ def generate_soldier_deck():
     # assign sides to decks based on the propensity
     greek_side = [card for card in cards if card['side'] == 'Greece']
     persian_side = [card for card in cards if card['side'] == 'Persia']
-    greek_side = assigns_cards_to_neutral_deck(greek_side, 11)
-    persian_side = assigns_cards_to_neutral_deck(persian_side, 11)
+    greek_side = assigns_cards_to_neutral_deck(greek_side, 13)
+    persian_side = assigns_cards_to_neutral_deck(persian_side, 13)
     cards = []
     cards.extend(greek_side)
     cards.extend(persian_side)
@@ -126,6 +116,7 @@ def generate_soldier_deck():
 
 
 def generate_special_deck():
+    assert False, "abilities not supported now"
     specials = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="Special_cards")
     print(specials)
     specials_dict = specials.to_dict(orient='records')
@@ -158,12 +149,14 @@ soldier_deck = generate_soldier_deck()
 print(soldier_deck)
 
 soldier_df = pd.DataFrame(soldier_deck)
+soldier_df["counter"] = 1
 print(soldier_df)
-x = soldier_df.groupby("state").agg({"land": "mean", "crowns": "mean", "sea": "mean", "reinforcements": "mean"})
+aggregations = {"counter": "count", "land": "mean", "trump": "mean"}
+x = soldier_df.groupby("state").agg(aggregations)
 print(x)
-x = soldier_df.groupby("side").agg({"land": "mean", "crowns": "mean", "sea": "mean", "reinforcements": "mean"})
+x = soldier_df.groupby("side").agg(aggregations)
 print(x)
-x = soldier_df.groupby("deck").agg({"land": "mean", "crowns": "mean", "sea": "mean", "reinforcements": "mean"})
+x = soldier_df.groupby("deck").agg(aggregations)
 print(x)
 
 # soldier_deck is list of dicts, each dict is a card

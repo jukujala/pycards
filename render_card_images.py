@@ -1,9 +1,14 @@
 """ Generate card images from JSON definition of the cards
 
+TODO:
+  * create a renderer which has fonts etc, so each function has input triple
+    img, card, renderer
+
 """
 import json
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
+import pandas as pd
 
 
 def get_fill_color(card):
@@ -34,39 +39,71 @@ def render_card_name(img, card, name_font):
     )
 
 
-def render_achievement(img, card, body_font):
+def render_symbol(img, card, body_font):
     # draw a line around achievement text
-    #margin = int(img.size[0] / 7.5)
-    margin = int(img.size[0] / 15)
+    loc = (0.07, 0.65)
+    size = (0.2, 0.2)
+    line_width = 0.025
+    # translate
+    loc = (img.size[0]*loc[0], img.size[1]*loc[1])
+    size = (img.size[0]*size[0], img.size[0]*size[1])
+    line_width = int(img.size[0]*line_width)
+    points = [
+        (loc[0], loc[1]),
+        (loc[0]+size[0], loc[1]),
+        (loc[0]+size[0], loc[1]+size[1]),
+        (loc[0], loc[1]+size[1]),
+        (loc[0], loc[1]),
+    ]
     color = get_fill_color(card)
     draw.line(
-        [(margin, img.size[1]), (margin, int(img.size[1] / 1.2)),
-         (img.size[0] - margin, int(img.size[1] / 1.2)),
-         (img.size[0] - margin, img.size[1])],
+        points,
         fill=color,
-        width=int(img.size[0] / 40),
+        width=line_width,
         joint="curve"
     )
-    #txt = "Achievement:"
-    #text_size = draw.textsize(txt, font=body_font)
-    #draw.text(
-    #    (int(img.size[0]/2-text_size[0]/2), int(img.size[1]/1.2 + 0.03*img.size[1])),
-    #    txt,
-    #    font=body_font,
-    #    fill=color
-    #)
-    txt = card['achievement']
+    txt = card['symbol']
     txt = get_smart_text(img, txt, body_font)
     text_size = draw.textsize(txt, font=body_font)
-    x = int(0.5*img.size[0]-text_size[0]/2)
-    y = int(0.9*img.size[1])
+    x = loc[0]+size[0]/2-text_size[0]/2
+    y = loc[1]+size[1]/2-text_size[1]/2
     draw.text(
-        #(int(img.size[0]/2-text_size[0]/2), int(img.size[1]/1.2 + 0.08*img.size[1])),
         (x, y),
         txt,
         font=body_font,
         fill=color
     )
+
+
+def render_achievement(img, card, body_font):
+    # draw a line around achievement text
+    margin = 0
+    color = get_fill_color(card)
+    size_y = img.size[1] - int(img.size[1] / 1.2)
+    draw.line(
+        [(margin, img.size[1] - size_y),
+         (img.size[0] - margin, img.size[1] - size_y)],
+        fill=color,
+        width=int(img.size[0] / 40),
+        joint="curve"
+    )
+    txt = card['achievement']
+    txt = get_smart_text(img, txt, body_font)
+    text_size = draw.textsize(txt, font=body_font)
+    x = int(0.5*img.size[0]-text_size[0]/2)
+    y = int(img.size[1]-size_y/2-text_size[1]/2)
+    draw.text(
+        (x, y),
+        txt,
+        font=body_font,
+        fill=color
+    )
+
+
+def render_achievement_count(img, card):
+    loc = (0.9, 0.92)
+    txt = str(card['achievement_count'])
+    render_text(img, card, loc, txt)
 
 
 def render_description(img, card, body_font):
@@ -77,57 +114,32 @@ def render_description(img, card, body_font):
     draw.text((margin, int((1-1/GOLDEN)*img.size[1])), txt, font=body_font, fill=color)
 
 
-def render_reinforcements(img, card, body_font):
-    # draw reinforcements, if applicable
-    # https://www.amazon.com/s?k=9780313276453&i=stripbooks&linkCode=qs
-    margin = int(img.size[0]/20)
-    color = get_fill_color(card)
-    if card['reinforcements'] > 0:
-        text = f"+{card['reinforcements']} soldiers"
-        draw.text((margin, int((1-1/GOLDEN)*img.size[1] + 4*BODY_FONT_SIZE)), text, font=body_font, fill=color)
-
-
-def render_soldier_reinforcements(img, card, body_font):
-    # draw reinforcements, if applicable
-    # https://www.amazon.com/s?k=9780313276453&i=stripbooks&linkCode=qs
-    #x = int(img.size[0]/4)
-    #margin = int(img.size[0]/20)
-    #y = 6*margin
-    #step_y = ASSETS['soldier'].size[1] + int(margin/2)
-    #render_points_with_asset(card['reinforcements'], img, ASSETS['soldier'], x, y, step_y)
-    margin = int(img.size[0]/20)
-    y = 6*margin
-    color = get_fill_color(card)
-    if card['reinforcements'] > 0:
-        text = f"Camp:"
-        text_size = draw.textsize(text, font=body_font)
-        x = img.size[0] - margin - text_size[0]
-        draw.text((x, y), text, font=body_font, fill=color)
-        y += text_size[1] + margin
-
-    x = img.size[0] - margin - ASSETS['soldier'].size[0]
-    step_y = ASSETS['soldier'].size[1] + int(margin/2)
-    render_points_with_asset(card['reinforcements'], img, ASSETS['soldier'], x, y, step_y)
-
-
-
 def render_card_id(img, card):
     margin = int(img.size[0] / 7.5)
-    font = ImageFont.truetype(FONT, size=12)
     color = get_fill_color(card)
     txt = str(card['card_id'])
-    text_size = draw.textsize(txt, font=font)
+    text_size = draw.textsize(txt, font=body_font)
     x = img.size[0]-margin/2-text_size[0]/2
-    #x = margin/2-text_size[0]/2
-    #y = img.size[1]-margin
     y = int(margin/6)
     draw.text((x, y), txt, font=body_font, fill=color)
 
 
+def render_text(img, card, loc, txt):
+    loc = (img.size[0] * loc[0], img.size[1] * loc[1])
+    color = get_fill_color(card)
+    x, y = loc
+    draw.text((x, y), txt, font=body_font, fill=color)
+
+
+def render_symbol_count(img, card):
+    loc = (0.29, 0.75)
+    txt = str(card['symbol_count'])
+    render_text(img, card, loc, txt)
+
+
 def render_points_with_asset(points, img, asset, x, y, step_y, step_x=0):
-    if points < 0:
-        img.paste(ImageOps.invert(asset.convert('RGB')), (x, y))
-        y += step_y
+    x = int(x)
+    y = int(y)
     for i in range(0, points):
         img.paste(asset, (x, y))
         y += step_y
@@ -140,82 +152,58 @@ def render_attack(img, card):
     margin = int(img.size[0]/20)
     x = margin
     y = 6*margin
-    step_y = ASSETS['sword'].size[1] + int(margin/2)
-    #y = render_points_with_asset(card['reinforcements'], img, ASSETS['soldier'], x, y, step_y)
-    y = render_points_with_asset(card['land'], img, ASSETS['sword'], x, y, step_y)
-    y = render_points_with_asset(card['sea'], img, ASSETS['trimeme'], x, y, step_y)
-    crown_asset = ImageOps.invert(ASSETS['crown'].convert('RGB'))
-    y = render_points_with_asset(card['crowns'], img, crown_asset, x, y, step_y)
-    #for i in range(0, card['land']):
-    #    img.paste(ASSETS['sword'], (x, y))
-    #    y += step_y
-    #for i in range(0, card['sea']):
-    #    img.paste(ASSETS['trimeme'], (x, y))
-    #    y += step_y
-    #for i in range(0, card['crowns']):
-    #    img.paste(ASSETS['crown'], (x, y))
-    #    y += step_y
-
-
-
-def render_ability(img, card, body_font):
-    #print(card['ability'])
-    #{'ability_id': 15, 'card': 'Oracle', 'card_count': 3, 'camp_trigger': 'N',
-    # 'payment': 3, 'reinforcements': 0,
-    # 'description': 'Swap any of your battle card with camp card'}
-    spec = card['ability']
-    color = get_fill_color(card)
-    txt = f"pay {spec['payment']} blood:"
-    txt = get_smart_text(img, txt, body_font)
-    pay_text_size = draw.textsize(txt, font=body_font)
-    x = int(0.2*img.size[0])
-    y0 = int(0.6*img.size[1])
-    draw.text((x, y0), txt, font=body_font, fill=color)
-    txt = get_smart_text(img, spec['description'], body_font)
-    text_size = draw.textsize(txt, font=body_font)
-    y = y0 + int(pay_text_size[1])
-    draw.text((x, y), txt, font=body_font, fill=color)
-    if spec['reinforcements'] > 0:
-        y += int(text_size[1] + 0.01*img.size[1])
-        render_points_with_asset(
-            spec['reinforcements'],
-            img,
-            ASSETS['soldier'],
-            x, y,
-            step_y=0, step_x=ASSETS['soldier'].size[0]
-        )
-        soldier_y = ASSETS['soldier'].size[1]
+    if card['trump'] > 0:
+        asset = ASSETS['crown']
+        points = card['trump']
     else:
-        soldier_y = 0
-    if spec['camp_trigger'] == 'Y':
-      margin = int(img.size[0]/20)
-      x, y = x - margin, y0 - margin
-      x2, y2 = x+text_size[0]+2*margin, y+pay_text_size[1]+text_size[1]+2*margin+soldier_y
-      draw.rectangle([(x, y), x2, y2], fill=None, outline="black", width=3)
+        asset = ASSETS['sword']
+        points = card['land']
+    step_y = asset.size[1] + int(margin/2)
+    y = render_points_with_asset(points, img, asset, x, y, step_y)
 
 
-def render_special_card(img, card, name_font, body_font):
-    render_card_name(img, card, name_font)
-    render_description(img, card, body_font)
-    render_reinforcements(img, card, body_font)
-    render_achievement(img, card, body_font)
-    render_card_id(img, card)
+def render_battleground_resources(img, card):
+    # draw resources gained when playing to battle ground
+    loc = (0.82, 0.2)
+    loc = (img.size[0] * loc[0], img.size[1] * loc[1])
+    x, y = loc
+    step_y = -1
+    points = 1
+    if card['land'] >= 3 or card['trump'] > 0:
+        y = render_points_with_asset(points, img, ASSETS['soldier'], x, y, step_y)
+    elif card['land'] == 2:
+        y = render_points_with_asset(points, img, ASSETS['blood'], x, y, step_y)
 
 
 def render_soldier_card(img, card, name_font, body_font):
     card['card'] = f"{card['side']} - {card['state']}"
     render_card_name(img, card, name_font)
     render_attack(img, card)
-    render_soldier_reinforcements(img, card, body_font)
-    render_ability(img, card, body_font)
+    render_symbol(img, card, body_font)
+    render_symbol_count(img, card)
     render_achievement(img, card, body_font)
+    render_achievement_count(img, card)
     render_card_id(img, card)
+    render_battleground_resources(img, card)
+
+
+def preprocess_decks(decks):
+    """ add symbol counts
+
+    :param decks:
+    :return:
+    """
+    symbols = [x['symbol'] for x in decks]
+    df = pd.DataFrame({"symbol": symbols})
+    symbol_counts = df.groupby("symbol").size().to_dict()
+    [card.update({"symbol_count": symbol_counts[card["symbol"]]}) for card in decks]
+    return decks
 
 
 # fonts: https://www.urbanfonts.com/fonts/greek-fonts.htm
 # matching colors designer:
 # https://coolors.co/00a693-703529-c8bfc7-7a9b76-8a7e72
-FONT = "GRECOromanLubedWrestling.ttf"
+FONT = "assets/GRECOromanLubedWrestling.ttf"
 
 # (28, 57, 187), https://en.wikipedia.org/wiki/Persian_blue
 DECK_COLORS = {
@@ -229,6 +217,7 @@ GREEK_COLOR = (112, 53, 41)
 
 ASSET_SIZE = (50, 50)
 ASSETS = {
+  'blood': Image.open("assets/blood.png").resize(ASSET_SIZE, Image.BILINEAR),
   'sword': Image.open("assets/sword.png").resize(ASSET_SIZE, Image.BILINEAR),
   'trimeme': Image.open("assets/trimeme2.png").resize(ASSET_SIZE, Image.BILINEAR),
   'crown': Image.open("assets/crown.png").resize(ASSET_SIZE, Image.BILINEAR),
@@ -242,9 +231,11 @@ draw.rectangle([(0,0), img.size], fill=None, outline="black", width=3)
 
 decks = json.load(open("cards_with_achievements.json", "r"))
 
+decks = preprocess_decks(decks)
+
 GOLDEN = (1 + 5 ** 0.5) / 2
 NAME_FONT_SIZE=40
-BODY_FONT_SIZE=20
+BODY_FONT_SIZE=30
 name_font = ImageFont.truetype(FONT, size=NAME_FONT_SIZE)
 body_font = ImageFont.truetype(FONT, size=BODY_FONT_SIZE)
 

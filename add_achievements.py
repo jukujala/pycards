@@ -23,25 +23,27 @@ decks = json.load(open("cards.json", "r"))
 assert len(decks) == len(achievement_list)
 for i, card in enumerate(decks):
     card['achievement'] = achievement_list[i]['description']
+    card['symbol'] = achievement_list[i]['symbol']
+    card['achievement_count'] = achievement_list[i]['card_count']
 
 
 # abilities
-abilities = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="Abilities")
-abilities = abilities.drop(columns=['comments', 'side', 'effects'])
-abilities_dict = abilities.to_dict(orient="records")
+#abilities = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="Abilities")
+#abilities = abilities.drop(columns=['comments', 'side', 'effects'])
+#abilities_dict = abilities.to_dict(orient="records")
 
-print(abilities)
+#print(abilities)
 
-abilities_list = []
-for abilities_def in abilities_dict:
-  for i in range(0, abilities_def['card_count']):
-      abilities_list.append(abilities_def.copy())
+#abilities_list = []
+#for abilities_def in abilities_dict:
+#  for i in range(0, abilities_def['card_count']):
+#      abilities_list.append(abilities_def.copy())
 
-random.shuffle(abilities_list)
+#random.shuffle(abilities_list)
 
-assert len(decks) == len(abilities_list)
-for i, card in enumerate(decks):
-    card['ability'] = abilities_list[i]
+#assert len(decks) == len(abilities_list)
+#for i, card in enumerate(decks):
+#    card['ability'] = abilities_list[i]
 
 with open('cards_with_achievements.json', 'w') as outfile:
     json.dump(decks, outfile)

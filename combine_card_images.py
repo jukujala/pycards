@@ -30,5 +30,6 @@ for i, group in enumerate(groups):
     pages.append(page)
 
 
-#pages[0].save('combined.pdf', save_all=True, append_images=[pages[1:]])
+# pages[0].save('pages/combined.pdf', save_all=True, append_images=[pages[1:]])
 
+# convert *pdf combined.pdf
