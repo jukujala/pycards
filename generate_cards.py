@@ -61,7 +61,7 @@ def good_state_cards(state_cards, expected_stats):
     good_cards = True
   else:
     state_stats = soldier_df.agg({"land": "mean"}).to_dict()
-    good_cards = all([abs(expected_stats[k] - state_stats[k]) < 0.1 for k in ["land"]])
+    good_cards = all([abs(expected_stats[k] - state_stats[k]) < 0.08 for k in ["land"]])
   return good_cards
 
 
@@ -91,7 +91,7 @@ def assigns_cards_to_neutral_deck(cards, n):
             if current_propensity >= pick_card_at_propensity:
                 cards[j]['deck'] = 'Neutral'
                 if cards[j]['type'] == 'soldier':
-                    if random.random() < 0.1:
+                    if random.random() < 0.3 and cards[j]['land'] < 3:
                         cards[j]['land'] += 1
                 break
     return cards
@@ -105,33 +105,31 @@ def generate_soldier_deck():
       state_cards = generate_state_cards(state)
       cards.extend(state_cards)
     # assign sides to decks based on the propensity
-    greek_side = [card for card in cards if card['side'] == 'Greece']
-    persian_side = [card for card in cards if card['side'] == 'Persia']
-    greek_side = assigns_cards_to_neutral_deck(greek_side, 13)
-    persian_side = assigns_cards_to_neutral_deck(persian_side, 13)
-    cards = []
-    cards.extend(greek_side)
-    cards.extend(persian_side)
+    #greek_side = [card for card in cards if card['side'] == 'Greece']
+    #persian_side = [card for card in cards if card['side'] == 'Persia']
+    #greek_side = assigns_cards_to_neutral_deck(greek_side, 13)
+    #persian_side = assigns_cards_to_neutral_deck(persian_side, 13)
+    #cards = []
+    #cards.extend(greek_side)
+    #cards.extend(persian_side)
     return cards
 
 
 def generate_special_deck():
-    assert False, "abilities not supported now"
-    specials = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="Special_cards")
-    print(specials)
+    specials = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="Specials")
+    #print(specials)
     specials_dict = specials.to_dict(orient='records')
-    print(specials_dict)
+    #print(specials_dict)
     cards = []
-    deck_index = 0
+    #deck_index = 0
     for special_card_def in specials_dict:
-      for i in range(0, special_card_def['card_count']):
-        card = special_card_def.copy()
-        card['type'] = 'special'
-        # rotating deck assignment
-        card['deck'] = DECKS[deck_index]
-        deck_index += 1
-        deck_index %= len(DECKS)
-        cards.append(card)
+        card_count = special_card_def['card_count']
+        if card_count == '':
+            continue
+        for i in range(0, int(card_count)):
+            card = special_card_def.copy()
+            card['type'] = 'special'
+            cards.append(card)
     return cards
 
 
@@ -142,8 +140,12 @@ def upload_cards(cards):
     gsheets_pandas.upload_pandas(df, spreadsheet_key, wks_name)
 
 
-#special_deck = generate_special_deck()
-#specials_df = pd.DataFrame(special_deck)
+special_deck = generate_special_deck()
+specials_df = pd.DataFrame(special_deck)
+
+print(special_deck)
+print(len(special_deck))
+#assert False
 
 soldier_deck = generate_soldier_deck()
 print(soldier_deck)
@@ -163,10 +165,8 @@ print(x)
 # cards are a pandas sheet
 # deck assignment is correlated across cards
 
-#cards = special_deck.copy()
-#cards.extend(soldier_deck)
-
-cards = soldier_deck
+cards = special_deck.copy()
+cards.extend(soldier_deck)
 
 for i, card in enumerate(cards):
     card['card_id'] = i+1

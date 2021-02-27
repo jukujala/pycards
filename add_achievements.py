@@ -20,11 +20,15 @@ for achievement_def in achievement_dict:
 random.shuffle(achievement_list)
 
 decks = json.load(open("cards.json", "r"))
+print(len(decks))
+print(len(achievement_list))
 assert len(decks) == len(achievement_list)
 for i, card in enumerate(decks):
     card['achievement'] = achievement_list[i]['description']
     card['symbol'] = achievement_list[i]['symbol']
     card['achievement_count'] = achievement_list[i]['card_count']
+    card['achievement_name'] = achievement_list[i]['card']
+    card['achievement_blood'] = achievement_list[i]['blood']
 
 
 # abilities
