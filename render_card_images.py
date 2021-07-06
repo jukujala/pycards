@@ -3,20 +3,84 @@
 TODO:
   * create a renderer which has fonts etc, so each function has input triple
     img, card, renderer
+  * renderer is a class instance?
+  * Font improvement: https://stackoverflow.com/questions/5414639/python-imaging-library-text-rendering
 
 """
 import json
+import re
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import pandas as pd
 import random
 
 
+# to: card renderer
 def get_fill_color(card):
-    if card['deck'] == "Neutral":
+    if card['side'] == "Neutral":
         return "black"
     else:
         return "white"
+
+
+def scale_xy(img, xy):
+  return (img.size[0]*xy[0], img.size[1]*xy[1])
+
+
+def render_text_with_assets(xy, text, ctx):
+  """ Render text that may include assets with {asset_name}
+
+  Each asset is taken from ASSET_DICT and rendered centered
+
+  :param xy: center point for drawing text
+
+  """
+  text_lst = re.split(r"(\{[0-9A-Za-z _]+\})", text)
+  print(text_lst)
+  #x = [re.match(r"\{[0-9A-Za-z ]+\}", x) for x in text_lst]
+  #print(x)
+  # example text_lst: ["Most ", "{trimeme}", "'s: ", "{influence}"]
+  # go thorough the text and calculate width
+  w_lst = []
+  render_lst = []
+  for text_part in text_lst:
+    if re.match(r"\{[0-9A-Za-z _]+\}", text_part):
+      asset_name = text_part.replace("{", "").replace("}", "")
+      asset_part = ctx[asset_name]
+      render_lst.append(asset_part)
+      w_lst.append(asset_part.size[0])
+    else:
+      render_lst.append(text_part)
+      txt_size = ctx['draw'].textsize(text_part, font=ctx['font'])
+      w_lst.append(txt_size[0])
+
+  w = sum(w_lst)
+  #print(w_lst)
+  #print(render_lst)
+  #print(w)
+  # calculate starting x position
+  x, y = scale_xy(ctx['img'], xy)
+  xnow = x - w/2.0
+  for obj in render_lst:
+    if isinstance(obj, str):
+      txt_size = ctx['draw'].textsize(obj, font=ctx['font'])
+      ynow = y - txt_size[1]/2.0
+      ctx['draw'].text(
+        (xnow, ynow),
+        obj,
+        font=ctx['font'],
+        fill=ctx['text_color']
+      )
+      xnow += txt_size[0]
+    else:
+      ynow = y - obj.size[1]/2.0
+      img.paste(obj, (int(xnow), int(ynow)), obj.convert('RGBA'))
+      xnow += obj.size[0]
+  #text_size = draw.textsize(txt, font=body_font)
+  # maintain current x,y position
+  # go through each item
+  # how to even calculate x-length for what is rendered?
+  # - like if you want text to be centered?
 
 
 def get_smart_text(size_x, text, font):
@@ -30,11 +94,8 @@ def get_smart_text(size_x, text, font):
             i += 1
         beg = text[0:space_i]
         rest = text[space_i+1:len(text)]
-        #print(f"text: {text}, beg: {beg}, rest: {rest}")
         rest2 = get_smart_text(size_x, rest, font)
         return beg + "\n" + rest2
-        #mid = int(len(text) / 2)
-        #text = text[0:mid] + "-\n" + text[mid:]
     return text
 
 
@@ -51,16 +112,16 @@ def render_card_name(img, card, name_font):
     )
 
 
-def render_symbol(img, card, body_font):
+def render_symbol(img, card, ctx):
     # draw a line around achievement text
-    #loc = (0.07, 0.65)
     loc = (0.02, 0.855)
-    #if card['land'] > 4:
-    #    loc = (0.27, 0.65)
     size = (0.2, 0.2)
     line_width = 0.025
     # translate
-    loc = (img.size[0]*loc[0], img.size[1]*loc[1])
+    loc = scale_xy(img, loc)
+    #size = scale_xy(img, size)
+    #loc = (img.size[0]*loc[0], img.size[1]*loc[1])
+    # size is scaled by x-axis length
     size = (img.size[0]*size[0], img.size[0]*size[1])
     line_width = int(img.size[0]*line_width)
     points = [
@@ -77,21 +138,39 @@ def render_symbol(img, card, body_font):
         width=line_width,
         joint="curve"
     )
-    txt = card['symbol']
-    txt = get_smart_text(img.size[0], txt, body_font)
-    text_size = draw.textsize(txt, font=body_font)
-    x = loc[0]+size[0]/2-text_size[0]/2
-    y = loc[1]+size[1]/2-text_size[1]/2
-    draw.text(
-        (x, y),
-        txt,
-        font=body_font,
-        fill=color
-    )
+    txt = card['influence']['symbol']
+    ctx['text_color'] = color
+    xy = (0.12, (loc[1]+size[1]/2.0)/img.size[1])
+    render_text_with_assets(xy, txt, ctx)
+    #txt = get_smart_text(img.size[0], txt, body_font)
+    #text_size = draw.textsize(txt, font=ctx['font'])
+    #x = loc[0]+size[0]/2-text_size[0]/2
+    #y = loc[1]+size[1]/2-text_size[1]/2
+    #draw.text(
+    #    (x, y),
+    #    txt,
+    #    font=body_font,
+    #    fill=color
+    #)
 
 
-def render_achievement(img, card, body_font):
-    # render achievement background with neutral color
+def render_influence_color(img, card):
+    # draw color of the influence
+    side = card['side']
+    if side == "Neutral":
+      side = random.choice(["Greece", "Persia"])
+    if card['influence']['influence_empire'] == 'all':
+      side = "All"
+    #PIL.ImageDraw.Draw.rectangle(xy, fill=None)
+    loc1 = (0.0, 5.0/6.0)
+    loc1 = (img.size[0]*loc1[0], img.size[1]*loc1[1])
+    loc2 = (1.0, 1.0)
+    loc2 = (img.size[0]*loc2[0], img.size[1]*loc2[1])
+    influence_color = SIDE_COLORS[side]
+    draw.rectangle([loc1, loc2], fill=influence_color)
+
+
+def render_achievement(img, card, ctx):
     # draw a line around achievement text
     margin = 0
     color = get_fill_color(card)
@@ -103,46 +182,47 @@ def render_achievement(img, card, body_font):
         width=int(img.size[0] / 40),
         joint="curve"
     )
-    txt = card['achievement']
-    if card['deck'] == "Greece":
-      side = "G"
-    elif card['deck'] == "Persia":
-      side = "P"
-    else:
-      side = random.choice(["G", "P"])
-    txt = txt.replace("{side}", side)
-    txt = get_smart_text(img.size[0]*0.7, txt, body_font)
-    text_size = draw.textsize(txt, font=body_font)
-    x = int(0.6*img.size[0]-text_size[0]/2)
-    y = int(img.size[1]-size_y/2-text_size[1]/2)
-    draw.text(
-        (x, y),
-        txt,
-        font=body_font,
-        fill=color
-    )
+    # draw the influence text
+    txt = card['influence']['influence_quantity']
+    #txt = txt.replace("{side}", side)
+    #txt = get_smart_text(img.size[0]*0.7, txt, body_font)
+    #ctx = ASSETS
+    #ctx['font'] = body_font
+    #ctx['img'] = img
+    #ctx['draw'] = draw
+    # 0.2 is symbol size from the left, so put x to
+    # 0.2 + 0.8/2.0 = 
+    ctx['text_color'] = color
+    xy = (0.2 + 0.8/2.0, 5.5/6.0)
+    render_text_with_assets(xy, txt, ctx)
+    #text_size = draw.textsize(txt, font=body_font)
+    #x = int(0.6*img.size[0]-text_size[0]/2)
+    #y = int(img.size[1]-size_y/2-text_size[1]/2)
+    #draw.text(
+    #    (x, y),
+    #    txt,
+    #    font=body_font,
+    #    fill=color
+    #)
 
 
 def render_achievement_count(img, card):
     loc = (0.95, 0.95)
-    txt = str(card['achievement_count'])
+    txt = str(card['influence']['card_count'])
     render_text(img, card, loc, txt)
 
 
 def render_description(img, card):
     # draw description
     loc = (0.07, 0.3)
-    #print(card)
     if card['land'] > 0:
         loc = (0.19, 0.3)
     loc = (img.size[0]*loc[0], img.size[1]*loc[1])
     x, y = loc
 
     ImageFont.truetype(FONT, size=20)
-    #margin = int(img.size[0]/20)
     color = get_fill_color(card)
     txt = get_smart_text(img.size[0]*0.8, card['description'], body_font)
-    #draw.text((margin, int((1-1/GOLDEN)*img.size[1])), txt, font=body_font, fill=color)
     draw.text((x, y), txt, font=body_font, fill=color)
 
 
@@ -165,8 +245,6 @@ def render_text(img, card, loc, txt):
 
 def render_symbol_count(img, card):
     loc = (0.23, 0.955)
-    #if card['land'] > 4:
-    #    loc = (0.49, 0.75)
     txt = str(card['symbol_count'])
     render_text(img, card, loc, txt)
 
@@ -200,54 +278,33 @@ def render_blood(img, card):
     x, y = loc
     x = int(x)
     y = int(y)
-    points = int(card['achievement_blood'])
+    points = int(card['influence']['blood'])
     step_y = ASSETS['blood'].size[1] + 0.01*img.size[1]
     y = render_points_with_asset(points, img, ASSETS['blood'], x, y, step_y)
 
 
-def render_battleground_resources(img, card):
-    # draw resources gained when playing to battle ground
-    loc = (0.82, 0.2)
-    loc = (img.size[0] * loc[0], img.size[1] * loc[1])
-    x, y = loc
-    #step_y = -1
-    #points = 1
-    #if card['land'] >= 3 or card['trump'] > 0:
-    #    y = render_points_with_asset(points, img, ASSETS['soldier'], x, y, step_y)
-    #elif card['land'] == 2:
-    #    y = render_points_with_asset(points, img, ASSETS['blood'], x, y, step_y)
-    step_y = ASSETS['discard'].size[1] + 0.01*img.size[1]
-    points = card['land']
-    if points == 1:
-        y = render_points_with_asset(1, img, ASSETS['discard'], x, y, step_y)
-    if points >= 2:
-        y = render_points_with_asset(1, img, ASSETS['soldier'], x, y, step_y)
-    if points >= 3:
-        y = render_points_with_asset(1, img, ASSETS['gold'], x, y, step_y)
-
-
-def render_soldier_card(img, card, name_font, body_font):
+def render_soldier_card(img, card, name_font, body_font, ctx):
     card['card'] = f"{card['state']} - {card['side']}"
+    render_influence_color(img, card)
     render_card_name(img, card, name_font)
     render_attack(img, card)
-    render_symbol(img, card, body_font)
+    render_symbol(img, card, ctx)
     render_symbol_count(img, card)
-    render_blood(img, card)
-    render_achievement(img, card, body_font)
+    #render_blood(img, card)
+    render_achievement(img, card, ctx)
     render_achievement_count(img, card)
     render_card_id(img, card)
-    #render_battleground_resources(img, card)
 
 
-def render_special_card(img, card, name_font, body_font):
+def render_special_card(img, card, name_font, body_font, ctx):
+    render_influence_color(img, card)
     render_card_name(img, card, name_font)
     render_attack(img, card)
-    render_symbol(img, card, body_font)
+    render_symbol(img, card, ctx)
     render_symbol_count(img, card)
-    render_blood(img, card)
+    #render_blood(img, card)
     render_description(img, card)
-    #render_reinforcements(img, card, body_font)
-    render_achievement(img, card, body_font)
+    render_achievement(img, card, ctx)
     render_achievement_count(img, card)
     render_card_id(img, card)
 
@@ -258,12 +315,11 @@ def preprocess_decks(decks):
     :param decks:
     :return:
     """
-    symbols = [x['symbol'] for x in decks]
+    symbols = [x['influence']['symbol'] for x in decks]
     df = pd.DataFrame({"symbol": symbols})
     symbol_counts = df.groupby("symbol").size().to_dict()
-    [card.update({"symbol_count": symbol_counts[card["symbol"]]}) for card in decks]
+    [card.update({"symbol_count": symbol_counts[card['influence']["symbol"]]}) for card in decks]
     return decks
-
 
 # fonts: https://www.urbanfonts.com/fonts/greek-fonts.htm
 # matching colors designer:
@@ -271,49 +327,88 @@ def preprocess_decks(decks):
 FONT = "assets/GRECOromanLubedWrestling.ttf"
 
 # (28, 57, 187), https://en.wikipedia.org/wiki/Persian_blue
-DECK_COLORS = {
+# TODO: what if just single big resource dict?
+# - what about defining this data in google sheets?
+# - this is now used directly to map the empire name, so would need a nested dict
+# - just add to RESOURCES the SIDE_COLORS as 'side_colors'
+SIDE_COLORS = {
+    # green
     'Persia': (0, 166, 147),
+    # red
     'Greece': (112, 53, 41),
-    'Neutral': (200, 191, 199)
+    # gray
+    'Neutral': (200, 191, 199),
+    # yellow, "royal"
+    'All': (250,169,22),
+    # this is red + green, bright
+    #'All': (254,234,0),
 }
+# all: FEEA00, FFD166, FAA916
 # Greek:
 # https://www.color-hex.com/color-palette/56669
-GREEK_COLOR = (112, 53, 41)
+#GREEK_COLOR = (112, 53, 41)
 
+# create huge global dict that has all assets
 ASSET_SIZE = (50, 50)
 ASSET_SIZE_SMALL = (35, 35)
 ASSETS = {
+  'artisan': Image.open("assets/artisan.png").resize(ASSET_SIZE, Image.BILINEAR),
   'blood': Image.open("assets/blood.png").resize(ASSET_SIZE_SMALL, Image.BILINEAR),
-  'gold': Image.open("assets/gold.png").resize(ASSET_SIZE, Image.BILINEAR),
-  'discard': Image.open("assets/discard.png").resize(ASSET_SIZE, Image.BILINEAR),
+  'farmer': Image.open("assets/farmer3.png").resize(ASSET_SIZE, Image.BILINEAR),
   'sword': Image.open("assets/sword.png").resize(ASSET_SIZE, Image.BILINEAR),
-  'trimeme': Image.open("assets/trimeme2.png").resize(ASSET_SIZE, Image.BILINEAR),
-  'crown': Image.open("assets/crown.png").resize(ASSET_SIZE, Image.BILINEAR),
-  'city': Image.open("assets/city.png").resize(ASSET_SIZE, Image.BILINEAR),
-  'soldier': Image.open("assets/soldier.png").resize(ASSET_SIZE, Image.BILINEAR),
+  'trimeme': Image.open("assets/trimeme3.png").resize(ASSET_SIZE, Image.BILINEAR),
+  'noble': Image.open("assets/crown2.png").resize(ASSET_SIZE, Image.BILINEAR),
+  'philosopher': Image.open("assets/philosopher2.png").resize(ASSET_SIZE, Image.BILINEAR),
+  'influence': Image.open("assets/influence.png").resize(ASSET_SIZE, Image.BILINEAR),
 }
+# generate negative influence symbol
+#ASSETS['neg_influence'] = ImageOps.invert(ASSETS['influence'].copy().convert('RGB'))
+ASSETS['neg_influence'] = ASSETS['influence'].copy()
+img = ASSETS['neg_influence']
+pixdata = img.load()
+for y in range(img.size[1]):
+  for x in range(img.size[0]):
+    alpha = pixdata[x, y][3]
+    pixdata[x, y] = (255, 0, 0, alpha)
 
-img = ASSETS['soldier']
-draw = ImageDraw.Draw(img)
-draw.rectangle([(0,0), img.size], fill=None, outline="black", width=3)
+img = ASSETS['influence']
+pixdata = img.load()
+for y in range(img.size[1]):
+  for x in range(img.size[0]):
+    alpha = pixdata[x, y][3]
+    #pixdata[x, y] = (255, 255, 255, alpha)
+    pixdata[x, y] = (0, 0, 0, alpha)
+    #if pixdata[x, y] == (255, 255, 255, 255):
+    #  pixdata[x, y] = (0, 0, 0, 255)
 
-decks = json.load(open("cards_with_achievements.json", "r"))
-
-decks = preprocess_decks(decks)
-
-GOLDEN = (1 + 5 ** 0.5) / 2
+# generate fonts
 NAME_FONT_SIZE=40
 BODY_FONT_SIZE=30
 name_font = ImageFont.truetype(FONT, size=NAME_FONT_SIZE)
 body_font = ImageFont.truetype(FONT, size=BODY_FONT_SIZE)
+ASSETS['font_name'] = name_font
+ASSETS['font_body'] = body_font
+    
+ctx = ASSETS
+ctx['font'] = body_font
+ctx['font_name'] = name_font
 
+# read cards
+decks = json.load(open("data/cards_with_achievements.json", "r"))
+decks = preprocess_decks(decks)
+
+# render each card
 for i in range(0, len(decks)):
     card = decks[i]
-    img = Image.new('RGB', (400, 600), color=DECK_COLORS[card['deck']])
+    img = Image.new('RGB', (400, 600), color=SIDE_COLORS[card['side']])
+    # TODO: this draw is used everywhere as renderer
     draw = ImageDraw.Draw(img)
+    ctx['img'] = img
+    ctx['draw'] = draw
     if card['type'] == "special":
-        render_special_card(img, card, name_font, body_font)
+        render_special_card(img, card, name_font, body_font, ctx)
     else:
-        render_soldier_card(img, card, name_font, body_font)
+        render_soldier_card(img, card, name_font, body_font, ctx)
+    #img = img.resize((1200, 1800), Image.ANTIALIAS)
     img.save(f"card_images/card_{card['card_id']}.png", "PNG")
 

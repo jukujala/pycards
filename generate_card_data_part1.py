@@ -1,28 +1,27 @@
+""" Generate deck of cards without achievement data yet.
+"""
 import random
 import gsheets_pandas
 import json
 import pandas as pd
 import numpy as np
 
+# die used to randomise stats
 DIE_SIZE = 3
 SPREADSHEET_KEY = "1VW6JEgVzPDG0tAtVvPg75pxxaLjRuvhzBh9JiRDSn-U"
-DECKS = ['Persia', 'Greece', 'Neutral']
-
-
-def dx(x):
-  return random.randint(1, x)
 
 
 def mindx(c, x=6):
   """ generate biased dx die throws, smaller c generates smaller numbers
 
   :param c: float param 0 <= c <= 1
+  :param x: size of die
 
-  :return: throw to dx, with probability 1-c take min of them, otherwise
+  :return: throw two die, with probability 1-c take min of them, otherwise
     the first
   """
-  r1 = dx(x)
-  r2 = dx(x)
+  r1 = random.randint(1, x)
+  r2 = random.randint(1, x)
   if random.random() <= c:
     return r1
   else:
@@ -30,14 +29,15 @@ def mindx(c, x=6):
 
 
 def generate_soldier_cards(state_dict):
+  """ Make single soldier card from state template
+
+  :return: dict where land attack value is randomised.
+  """
   card = {
     'type': 'soldier',
     'side': state_dict['side'],
     'state': state_dict['state'],
     'land': mindx(state_dict['land'], DIE_SIZE),
-    'trump': state_dict['trump'],
-    'deck': state_dict['side'],
-    'neutral_deck_propensity': state_dict['neutral_deck_propensity']
   }
   return card
 
@@ -50,11 +50,13 @@ def get_expected_state_soldier_stats(state_dict):
 
 
 def good_state_cards(state_cards, expected_stats):
-  """ state soldier cards are good if stats are close to expected
+  """ Check whether soldier cards are good
 
-  :param state_cards:
-  :param expected_stats:
-  :return:
+  :param state_cards: all cards of single state
+  :param expected_stats: expected stats
+
+  :return: Boolean good/bad cards.
+    State soldier cards are good if stats are close to expected
   """
   soldier_df = pd.DataFrame(state_cards)
   if len(soldier_df) < 4:
@@ -66,8 +68,15 @@ def good_state_cards(state_cards, expected_stats):
 
 
 def generate_state_cards(state_dict):
+  """ Generate all soldier cards of a state
+
+  :param state_dict: state template for cards
+
+  :return: list of card definitions
+  """
   expected_state_stats = get_expected_state_soldier_stats(state_dict)
   while True:
+    # randomise cards until expected values look good
     state_cards = []
     for i in range(0, state_dict['card_count']):
       card = generate_soldier_cards(state_dict)
@@ -79,86 +88,64 @@ def generate_state_cards(state_dict):
   return state_cards
 
 
-def assigns_cards_to_neutral_deck(cards, n):
-    for i in range(0, n):
-        sum_propensity = sum([card['neutral_deck_propensity'] for card in cards if card['deck'] != 'Neutral'])
-        pick_card_at_propensity = random.uniform(0, sum_propensity)
-        current_propensity = 0.0
-        for j in range(0, len(cards)):
-            if cards[j]['deck'] == "Neutral":
-                continue
-            current_propensity += cards[j]['neutral_deck_propensity']
-            if current_propensity >= pick_card_at_propensity:
-                cards[j]['deck'] = 'Neutral'
-                if cards[j]['type'] == 'soldier':
-                    if random.random() < 0.3 and cards[j]['land'] < 3:
-                        cards[j]['land'] += 1
-                break
-    return cards
-
-
 def generate_soldier_deck():
-    states = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="States")
-    states_dict = states.to_dict(orient="records")
-    cards = []
-    for state in states_dict:
-      state_cards = generate_state_cards(state)
-      cards.extend(state_cards)
-    # assign sides to decks based on the propensity
-    #greek_side = [card for card in cards if card['side'] == 'Greece']
-    #persian_side = [card for card in cards if card['side'] == 'Persia']
-    #greek_side = assigns_cards_to_neutral_deck(greek_side, 13)
-    #persian_side = assigns_cards_to_neutral_deck(persian_side, 13)
-    #cards = []
-    #cards.extend(greek_side)
-    #cards.extend(persian_side)
-    return cards
+  """ Generate soldier deck using data from Google sheets
+  """
+  # fetch data from the Google sheet
+  states = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="States")
+  states_dict = states.to_dict(orient="records")
+  cards = []
+  # iterate over states and generate cards for each
+  for state in states_dict:
+    state_cards = generate_state_cards(state)
+    cards.extend(state_cards)
+  return cards
 
 
 def generate_special_deck():
-    specials = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="Specials")
-    #print(specials)
-    specials_dict = specials.to_dict(orient='records')
-    #print(specials_dict)
-    cards = []
-    #deck_index = 0
-    for special_card_def in specials_dict:
-        card_count = special_card_def['card_count']
-        if card_count == '':
-            continue
-        for i in range(0, int(card_count)):
-            card = special_card_def.copy()
-            card['type'] = 'special'
-            cards.append(card)
-    return cards
+  """ Generate special cards
+  """
+  # read definitions from Google sheets
+  specials = gsheets_pandas.download_pandas(SPREADSHEET_KEY, wks_name="Specials")
+  specials_dict = specials.to_dict(orient='records')
+  cards = []
+  for special_card_def in specials_dict:
+    # process the card, make a separate copy based on number in card_count -field
+    card_count = special_card_def['card_count']
+    if card_count == '':
+      continue
+    for i in range(0, int(card_count)):
+      card = special_card_def.copy()
+      card['type'] = 'special'
+      cards.append(card)
+  return cards
 
 
 def upload_cards(cards):
-    df = pd.DataFrame(cards)
-    spreadsheet_key = "1VW6JEgVzPDG0tAtVvPg75pxxaLjRuvhzBh9JiRDSn-U"
-    wks_name = "Master"
-    gsheets_pandas.upload_pandas(df, spreadsheet_key, wks_name)
+  """ Upload generated cards back to the Google sheets
 
+  :param cards: list of cards, each is a dict
+  """
+  df = pd.DataFrame(cards)
+  spreadsheet_key = SPREADSHEET_KEY
+  wks_name = "Master"
+  gsheets_pandas.upload_pandas(df, spreadsheet_key, wks_name)
 
+# generate all cards
 special_deck = generate_special_deck()
-specials_df = pd.DataFrame(special_deck)
-
-print(special_deck)
-print(len(special_deck))
-#assert False
-
 soldier_deck = generate_soldier_deck()
-print(soldier_deck)
 
+# print cards for debugging purposes
 soldier_df = pd.DataFrame(soldier_deck)
+print(soldier_deck)
+specials_df = pd.DataFrame(special_deck)
+# calculate aggregates of attack statistics
 soldier_df["counter"] = 1
 print(soldier_df)
-aggregations = {"counter": "count", "land": "mean", "trump": "mean"}
+aggregations = {"counter": "count", "land": "mean"}
 x = soldier_df.groupby("state").agg(aggregations)
 print(x)
 x = soldier_df.groupby("side").agg(aggregations)
-print(x)
-x = soldier_df.groupby("deck").agg(aggregations)
 print(x)
 
 # soldier_deck is list of dicts, each dict is a card
@@ -168,10 +155,11 @@ print(x)
 cards = special_deck.copy()
 cards.extend(soldier_deck)
 
+# add a running number identifier to each card
 for i, card in enumerate(cards):
     card['card_id'] = i+1
 
-with open('cards.json', 'w') as outfile:
+# dump cards to a JSON file
+with open('data/cards.json', 'w') as outfile:
     json.dump(cards, outfile)
 
-#upload_cards(soldier_df)
