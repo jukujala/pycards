@@ -15,7 +15,6 @@ import pandas as pd
 import random
 
 
-# to: card renderer
 def get_fill_color(card):
     if card['side'] == "Neutral":
         return "black"
@@ -30,18 +29,19 @@ def scale_xy(img, xy):
 def render_text_with_assets(xy, text, ctx):
   """ Render text that may include assets with {asset_name}
 
-  Each asset is taken from ASSET_DICT and rendered centered
+  Each asset is taken from ctx and rendered centered
 
   :param xy: center point for drawing text
+  :param text: text to render
+  :param ctx: dict of context, includes assets by name, and also
+    special elements like 'draw' and 'ctx' and 'font'
 
   """
+  # split input text to list of individual elements
   text_lst = re.split(r"(\{[0-9A-Za-z _]+\})", text)
-  print(text_lst)
-  #x = [re.match(r"\{[0-9A-Za-z ]+\}", x) for x in text_lst]
-  #print(x)
-  # example text_lst: ["Most ", "{trimeme}", "'s: ", "{influence}"]
-  # go thorough the text and calculate width
+  # w_lst maintains list of widths of the elements in text_lst
   w_lst = []
+  # render_lst elements of text_lst transformed to renderable elements
   render_lst = []
   for text_part in text_lst:
     if re.match(r"\{[0-9A-Za-z _]+\}", text_part):
@@ -54,10 +54,8 @@ def render_text_with_assets(xy, text, ctx):
       txt_size = ctx['draw'].textsize(text_part, font=ctx['font'])
       w_lst.append(txt_size[0])
 
+  # calculate full width to be rendered
   w = sum(w_lst)
-  #print(w_lst)
-  #print(render_lst)
-  #print(w)
   # calculate starting x position
   x, y = scale_xy(ctx['img'], xy)
   xnow = x - w/2.0
@@ -76,11 +74,6 @@ def render_text_with_assets(xy, text, ctx):
       ynow = y - obj.size[1]/2.0
       img.paste(obj, (int(xnow), int(ynow)), obj.convert('RGBA'))
       xnow += obj.size[0]
-  #text_size = draw.textsize(txt, font=body_font)
-  # maintain current x,y position
-  # go through each item
-  # how to even calculate x-length for what is rendered?
-  # - like if you want text to be centered?
 
 
 def get_smart_text(size_x, text, font):
@@ -119,8 +112,6 @@ def render_symbol(img, card, ctx):
     line_width = 0.025
     # translate
     loc = scale_xy(img, loc)
-    #size = scale_xy(img, size)
-    #loc = (img.size[0]*loc[0], img.size[1]*loc[1])
     # size is scaled by x-axis length
     size = (img.size[0]*size[0], img.size[0]*size[1])
     line_width = int(img.size[0]*line_width)
@@ -132,6 +123,8 @@ def render_symbol(img, card, ctx):
         (loc[0], loc[1]),
     ]
     color = get_fill_color(card)
+    # draw yellow background to the symbol
+    draw.rectangle([points[0], points[2]], fill=SIDE_COLORS['All'])
     draw.line(
         points,
         fill=color,
@@ -142,16 +135,6 @@ def render_symbol(img, card, ctx):
     ctx['text_color'] = color
     xy = (0.12, (loc[1]+size[1]/2.0)/img.size[1])
     render_text_with_assets(xy, txt, ctx)
-    #txt = get_smart_text(img.size[0], txt, body_font)
-    #text_size = draw.textsize(txt, font=ctx['font'])
-    #x = loc[0]+size[0]/2-text_size[0]/2
-    #y = loc[1]+size[1]/2-text_size[1]/2
-    #draw.text(
-    #    (x, y),
-    #    txt,
-    #    font=body_font,
-    #    fill=color
-    #)
 
 
 def render_influence_color(img, card):
@@ -161,7 +144,6 @@ def render_influence_color(img, card):
       side = random.choice(["Greece", "Persia"])
     if card['influence']['influence_empire'] == 'all':
       side = "All"
-    #PIL.ImageDraw.Draw.rectangle(xy, fill=None)
     loc1 = (0.0, 5.0/6.0)
     loc1 = (img.size[0]*loc1[0], img.size[1]*loc1[1])
     loc2 = (1.0, 1.0)
@@ -184,26 +166,9 @@ def render_achievement(img, card, ctx):
     )
     # draw the influence text
     txt = card['influence']['influence_quantity']
-    #txt = txt.replace("{side}", side)
-    #txt = get_smart_text(img.size[0]*0.7, txt, body_font)
-    #ctx = ASSETS
-    #ctx['font'] = body_font
-    #ctx['img'] = img
-    #ctx['draw'] = draw
-    # 0.2 is symbol size from the left, so put x to
-    # 0.2 + 0.8/2.0 = 
     ctx['text_color'] = color
     xy = (0.2 + 0.8/2.0, 5.5/6.0)
     render_text_with_assets(xy, txt, ctx)
-    #text_size = draw.textsize(txt, font=body_font)
-    #x = int(0.6*img.size[0]-text_size[0]/2)
-    #y = int(img.size[1]-size_y/2-text_size[1]/2)
-    #draw.text(
-    #    (x, y),
-    #    txt,
-    #    font=body_font,
-    #    fill=color
-    #)
 
 
 def render_achievement_count(img, card):
@@ -219,7 +184,6 @@ def render_description(img, card):
         loc = (0.19, 0.3)
     loc = (img.size[0]*loc[0], img.size[1]*loc[1])
     x, y = loc
-
     ImageFont.truetype(FONT, size=20)
     color = get_fill_color(card)
     txt = get_smart_text(img.size[0]*0.8, card['description'], body_font)
@@ -289,11 +253,7 @@ def render_soldier_card(img, card, name_font, body_font, ctx):
     render_card_name(img, card, name_font)
     render_attack(img, card)
     render_symbol(img, card, ctx)
-    render_symbol_count(img, card)
-    #render_blood(img, card)
     render_achievement(img, card, ctx)
-    render_achievement_count(img, card)
-    render_card_id(img, card)
 
 
 def render_special_card(img, card, name_font, body_font, ctx):
@@ -301,12 +261,8 @@ def render_special_card(img, card, name_font, body_font, ctx):
     render_card_name(img, card, name_font)
     render_attack(img, card)
     render_symbol(img, card, ctx)
-    render_symbol_count(img, card)
-    #render_blood(img, card)
     render_description(img, card)
     render_achievement(img, card, ctx)
-    render_achievement_count(img, card)
-    render_card_id(img, card)
 
 
 def preprocess_decks(decks):
@@ -354,15 +310,15 @@ ASSET_SIZE_SMALL = (35, 35)
 ASSETS = {
   'artisan': Image.open("assets/artisan.png").resize(ASSET_SIZE, Image.BILINEAR),
   'blood': Image.open("assets/blood.png").resize(ASSET_SIZE_SMALL, Image.BILINEAR),
+  'slave': Image.open("assets/blood.png").resize(ASSET_SIZE_SMALL, Image.BILINEAR),
   'farmer': Image.open("assets/farmer3.png").resize(ASSET_SIZE, Image.BILINEAR),
   'sword': Image.open("assets/sword.png").resize(ASSET_SIZE, Image.BILINEAR),
   'trimeme': Image.open("assets/trimeme3.png").resize(ASSET_SIZE, Image.BILINEAR),
   'noble': Image.open("assets/crown2.png").resize(ASSET_SIZE, Image.BILINEAR),
-  'philosopher': Image.open("assets/philosopher2.png").resize(ASSET_SIZE, Image.BILINEAR),
+  #'philosopher': Image.open("assets/philosopher2.png").resize(ASSET_SIZE, Image.BILINEAR),
   'influence': Image.open("assets/influence.png").resize(ASSET_SIZE, Image.BILINEAR),
 }
 # generate negative influence symbol
-#ASSETS['neg_influence'] = ImageOps.invert(ASSETS['influence'].copy().convert('RGB'))
 ASSETS['neg_influence'] = ASSETS['influence'].copy()
 img = ASSETS['neg_influence']
 pixdata = img.load()
@@ -376,10 +332,7 @@ pixdata = img.load()
 for y in range(img.size[1]):
   for x in range(img.size[0]):
     alpha = pixdata[x, y][3]
-    #pixdata[x, y] = (255, 255, 255, alpha)
     pixdata[x, y] = (0, 0, 0, alpha)
-    #if pixdata[x, y] == (255, 255, 255, 255):
-    #  pixdata[x, y] = (0, 0, 0, 255)
 
 # generate fonts
 NAME_FONT_SIZE=40
@@ -410,5 +363,5 @@ for i in range(0, len(decks)):
     else:
         render_soldier_card(img, card, name_font, body_font, ctx)
     #img = img.resize((1200, 1800), Image.ANTIALIAS)
-    img.save(f"card_images/card_{card['card_id']}.png", "PNG")
+    img.save(f"data/card_images/card_{card['card_id']}.png", "PNG")
 

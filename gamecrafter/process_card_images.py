@@ -1,5 +1,6 @@
 import os
 
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 # public/private to gamecrafter
@@ -14,14 +15,14 @@ CONVERSION_DATA = {
 }
 x, y = CONVERSION_DATA['euro_card']['size']
 MARGIN = CONVERSION_DATA['euro_card']['margin']
-INPUT_PATH="./card_images/"
-OUTPUT_PATH="./gamecrafter/processed_cards/"
+INPUT_PATH="./data/card_images/"
+OUTPUT_PATH="./data/processed_cards.10.0/"
 EXTRA_INPUTS = [
-  "./gamecrafter/deck_back.png",
-  "./gamecrafter/battle_summary1.png",
-  "./gamecrafter/battle_summary2.png",
-  "./gamecrafter/battle_summary3.png",
-  "./gamecrafter/battle_summary4.png",
+  "./data/deck_back.png",
+  "./data/battle_summary1.png",
+  "./data/battle_summary2.png",
+  "./data/battle_summary3.png",
+  "./data/battle_summary4.png",
 ]
 
 def absolute_file_paths(directory):
@@ -31,7 +32,7 @@ def absolute_file_paths(directory):
 
 def get_overlay_img():
   # load the overlay template
-  overlay_path = "./gamecrafter/euro-poker-card.png"
+  overlay_path = "./data/gamecrafter-euro-poker-card.png"
   overlay_img = Image.open(overlay_path)
   # make a black background
   draw = ImageDraw.Draw(overlay_img)
@@ -57,6 +58,8 @@ input_files = absolute_file_paths(INPUT_PATH)
 input_files.extend(EXTRA_INPUTS)
 print(input_files)
 print([os.path.basename(x) for x in input_files])
+
+Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
 
 for input_file in input_files:
   card_img = process_card_img(input_file, overlay_img)

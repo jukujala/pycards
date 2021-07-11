@@ -1,3 +1,9 @@
+""" Helps to get credentials needed to access Google sheets
+
+  * This is a PITA: you need credentials.json as described in documentation
+    https://developers.google.com/sheets/api/quickstart/python
+
+"""
 from __future__ import print_function
 import pickle
 import os.path
