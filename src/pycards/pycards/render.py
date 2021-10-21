@@ -127,4 +127,3 @@ def divide_text_to_lines(draw, width, text, font):
         return beg + "\n" + rest2
     return text
 
-

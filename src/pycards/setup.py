@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as readme_file:
     readme = readme_file.read()
 
-requirements = ["pandas>=1.3.0"]
+requirements = ["pandas>=1.3.0", "Pillow>=8.3.1"]
 
 setup(
     name="pycards",
