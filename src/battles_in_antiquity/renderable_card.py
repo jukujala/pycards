@@ -1,8 +1,4 @@
-""" Renderable card: all data required for the rendering
-
-  * rcard = Renderable card
-  * Example: rcard['_img'] is the card canvas
-
+""" Renderable card: all data required for rendering a single card
 """
 from assets import ASSETS
 
@@ -39,7 +35,7 @@ def make_renderable_card(card):
   """ Add to card data required to render it
 
   :param card: dict with one card data
-  :return: card dict with rendering data + img canvas in _img key
+  :return: card dict including rendering data
   """
   card = card.copy()
   colors = {}

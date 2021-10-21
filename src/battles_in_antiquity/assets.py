@@ -25,23 +25,6 @@ ASSETS = {
     'sword_small': Image.open("assets/sword.png").resize(ASSET_SIZE_SMALL, Image.BILINEAR),
     'trimeme': Image.open("assets/trimeme3.png").resize(ASSET_SIZE, Image.BILINEAR),
 }
-"""
-# generate negative influence symbol
-ASSETS['neg_influence'] = ASSETS['influence'].copy()
-img = ASSETS['neg_influence']
-pixdata = img.load()
-for y in range(img.size[1]):
-    for x in range(img.size[0]):
-        alpha = pixdata[x, y][3]
-        pixdata[x, y] = (255, 0, 0, alpha)
-
-img = ASSETS['influence']
-pixdata = img.load()
-for y in range(img.size[1]):
-    for x in range(img.size[0]):
-        alpha = pixdata[x, y][3]
-        pixdata[x, y] = (0, 0, 0, alpha)
-"""
 # generate fonts
 # fonts: https://www.urbanfonts.com/fonts/greek-fonts.htm
 FONT_FILE = "assets/GRECOromanLubedWrestling.ttf"
