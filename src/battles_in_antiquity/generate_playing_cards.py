@@ -15,18 +15,15 @@ from renderable_card import make_renderable_card
 CARD_SHEET_ID = "1Q8gs-XEURbsVB43OSe1DDL_W3T7tPryzOr-oUkxydbE"
 CARD_SHEET_NAME = "Master"
 # Dump cards in JSON to this file, you can save it for versioning
-CARD_JSON_PATH = "./data/cards.json"
+CARD_JSON_PATH = "./data/playing_cards.json"
+# Card images go to OUTPUT_PATH
+OUTPUT_PATH = "data/playing_cards"
 
 
 def load_card_data():
-  """ Load card data from Google sheets CARD_SHEET_ID
-
-  :return: list of dicts
-  """
   cards_df = download_gsheets(CARD_SHEET_ID, CARD_SHEET_NAME)
   print("printing the cards")
   print(cards_df)
-  # transform to list of dicts
   cards = cards_df.to_dict('records')
   return cards
 
@@ -92,15 +89,13 @@ def render_symbol(card):
 def render_influence_color(card):
     """ Influence is the bottom part of the card
     """
-    # TBD: transfer points to relative
     img = card['_img']
     draw = card['_draw']
     loc1 = (0.0, 5.0 / 6.0)
-    loc1 = (img.size[0] * loc1[0], img.size[1] * loc1[1])
     loc2 = (1.0, 1.0)
-    loc2 = (img.size[0] * loc2[0], img.size[1] * loc2[1])
-    influence_color = card["_colors"]["Neutral"]
-    draw.rectangle([loc1, loc2], fill=influence_color)
+    loc1 = scale_rxy_to_xy(img, loc1)
+    loc2 = scale_rxy_to_xy(img, loc2)
+    draw.rectangle([loc1, loc2], fill=card["_colors"]["Neutral"])
 
 
 def render_achievement(card):
@@ -134,14 +129,8 @@ def render_description(card):
     if card['Description'] == "":
         return
     img = card['_img']
-    draw = card['_draw']
     font = card['_assets']['font_body']
-    #loc = (0.22, 0.2)
     rxy = (0.22, 0.22)
-    #loc = (img.size[0] * loc[0], img.size[1] * loc[1])
-    #x, y = loc
-    #txt = divide_text_to_lines(draw, img.size[0] * 0.7, card['Description'], card['_assets']['font_body'])
-    #draw.text((x, y), txt, font=font, fill=card['_colors']['fill'])
     render_text_with_assets(
         rxy,
         text=card['Description'],
@@ -184,26 +173,14 @@ def render_swords(card):
     # draw swords to left part of the image
     img = card['_img']
     rxy = (0.05, 0.2)
-    #rxy = (0.1, 0.32)
     x, y = scale_rxy_to_xy(img, rxy)
-    #xy = scale_rxy_to_xy(img, rxy)
     points = card['Swords']
     if points > 5:
         asset = card['_assets']['sword_small']
     else:
         asset = card['_assets']['sword']
-    #font = ImageFont.truetype(assets.FONT_FILE, size=40)
     step_y = asset.size[1] + int(x / 2)
     y = render_points_with_asset(points, img, asset, x, y, step_y)
-    #render_text_with_assets(
-    #    rxy,
-    #    text=f"{points} {{sword}}",
-    #    img=img,
-    #    font=font,
-    #    text_color=None,
-    #    #card['_colors']['fill'],
-    #    assets=card['_assets']
-    #)
 
 
 def render_card(card):
@@ -226,7 +203,6 @@ with open(CARD_JSON_PATH, 'w') as outfile:
     json.dump(cards, outfile)
 rcards = [make_renderable_card(card) for card in cards]
 # render each card
-OUTPUT_PATH = "data/card_images"
 from pathlib import Path
 Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
 for card in rcards:

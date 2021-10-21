@@ -1,0 +1,6 @@
+black
+pandas
+pillow
+pytest
+git+https://github.com/jukujala/tgc-utils@main#egg=tgc_utils
+git+https://github.com/jukujala/tts-utils@main#egg=tts_utils
