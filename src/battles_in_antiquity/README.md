@@ -9,7 +9,8 @@ This is a prototype card game which uses Python for technical implementation.
 ## Design iteration
 
 Card statistics are defined in this
-[Google sheet](xxx), but any CSV would work.
+[Google sheet](https://docs.google.com/spreadsheets/d/1Q8gs-XEURbsVB43OSe1DDL_W3T7tPryzOr-oUkxydbE/edit?usp=sharing), 
+but any CSV would work.
 Asset images are in the [assets](assets) folder.
 
 [make_game.sh](make_game.sh)
