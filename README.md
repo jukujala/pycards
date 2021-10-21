@@ -1,10 +1,15 @@
-# Battles of Classical Greece vs Persia
+# Card game design iteration with Python
 
-Python code to generate cards for a card game.
+This repo has an example how to create a card game with Python.
+The goal is to support iteration of game design, so enable a fast loop of:
 
-What:
+  1. Change game rules.
+  2. Generate card images.
+  3. Print & play, play in Tabletop Simulator, or use a service like The Gamecrafter to print the cards.
+  4. Playtest & receive feedback & go back to 1.
 
-  1. To develop the game adjust game data at Google sheets.
-  2. Create data for each card in JSON format.
-  3. Render each card as an image.
+[Battles in Antiquity](src/battles_in_antiquity)
+is a complete example of a prototype card game.
 
+[pycards](src/pycards)
+is a Python package with support functions to e.g. render images.
