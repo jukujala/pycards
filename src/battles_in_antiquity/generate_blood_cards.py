@@ -50,16 +50,6 @@ def render_card(card):
     render_line(card, (0.5, 0.62), text=card["Second line"])
 
 
-def render_card_back(card):
-    img = Image.new('RGB', card['_size'], color=card['_colors']['empire'])
-    draw = ImageDraw.Draw(img)
-    card['_img'] = img
-    card['_draw'] = draw
-    render_line(card, (0.5, 0.38), text=card["First line"])
-    render_line(card, (0.5, 0.62), text=card["Second line"])
-    #render_line(card, (0.5, 0.9), text=card["Influence"])
-
-
 cards = load_card_data()
 rcards = [make_renderable_card(card) for card in cards]
 Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
