@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Create card image files
 python generate_playing_cards.py
