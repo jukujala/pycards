@@ -30,7 +30,9 @@ As an example
 
     python generate_victory_cards.py
 
-does the following:
+runs code file
+[generate_victory_cards.py](generate_victory_cards.py)
+which does the following:
 
   * Reads card definitions from Google Sheets (CSV).
     Example from CSV:
@@ -38,15 +40,17 @@ does the following:
         Card count,Empire,Name,Description
  	    4,Egypt,Egypt Victory,{influence_big}
 
-  * Converts each card to "JSON data", so a dictionary of elements.
+  * Converts each card to individual dictionary of elements, so "JSON" data.
     Example: `{"Card count": 4, "Empire": "Egypt", ...}`.
-  * Adds to each card rendering data.
+  * Adds to each card dictionary data required for rendering.
     [assets.py](assets.py) 
     reads the asset directory to Python objects and
     defines a Python dictionary of all assets such as images and fonts.
     [renderable_card.py](renderable_card.py)
     attaches all rendering data to cards, so each card has all assets for example.
   * Renders each card and writes card PNG to output folder.
+    A string `{influence_big}` automatically converts to an asset image with name
+    `influence_big`.
 
 Example output image:
 ![image info](./data/examples/example_victory_card.png).
