@@ -1,4 +1,4 @@
-""" Generate "blood" card images from card specification in CSV
+""" Generate people card images from card specification in CSV
 """
 import argparse
 import json
@@ -10,12 +10,13 @@ from pycards.render import scale_rxy_to_xy, render_text_with_assets, divide_text
 
 from assets import ASSETS
 from renderable_card import make_renderable_card
+from generate_playing_cards import render_number
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1Q8gs-XEURbsVB43OSe1DDL_W3T7tPryzOr-oUkxydbE"
-CARD_SHEET_NAME = "Blood_cards"
-OUTPUT_PATH = "data/blood_cards"
+CARD_SHEET_ID = "1uMlrzOGldP95ieGV_JgjAXGa8-0BGRpbLVZZwAo0_60"
+CARD_SHEET_NAME = "People_cards"
+OUTPUT_PATH = "data/people_cards"
 
 
 def load_card_data():
@@ -37,11 +38,21 @@ def render_line(card, rxy, text):
         text_color=card['_colors']['fill'],
         assets=card["_assets"],
         align="center",
-        max_width=1.0
+        max_width=0.9
     )
 
 
 def render_card(card):
+    img = Image.new('RGB', card['_size'], color=card['_colors']['empire'])
+    draw = ImageDraw.Draw(img)
+    card['_img'] = img
+    card['_draw'] = draw
+    card['Number'] = card["First line"]
+    render_number(card)
+    render_line(card, (0.5, 0.62), text=card["Second line"])
+
+
+def render_card_back(card):
     img = Image.new('RGB', card['_size'], color=card['_colors']['empire'])
     draw = ImageDraw.Draw(img)
     card['_img'] = img
@@ -52,6 +63,7 @@ def render_card(card):
 
 cards = load_card_data()
 rcards = [make_renderable_card(card) for card in cards]
+# make output path
 Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
 i = 1
 for card in rcards:
@@ -61,10 +73,10 @@ for card in rcards:
         img.save(f"{OUTPUT_PATH}/card_{i}.png", "PNG")
         i += 1
 
-# Render card back images
+# Render card back images, this is a hack
 back_cards = [x for x in rcards if x['Card count'] < 0]
 for card in back_cards:
-    render_card(card)
+    render_card_back(card)
     img = card['_img']
     back_output_path = Path(OUTPUT_PATH).parent.absolute()
     filename = card["File"]

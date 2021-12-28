@@ -12,10 +12,8 @@ from renderable_card import make_renderable_card
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1Q8gs-XEURbsVB43OSe1DDL_W3T7tPryzOr-oUkxydbE"
+CARD_SHEET_ID = "1uMlrzOGldP95ieGV_JgjAXGa8-0BGRpbLVZZwAo0_60"
 CARD_SHEET_NAME = "Master"
-# Dump cards in JSON to this file, you can save it for versioning
-CARD_JSON_PATH = "./data/playing_cards.json"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
 
@@ -29,31 +27,35 @@ def load_card_data():
 
 
 def render_card_name(card):
-    """ Card name is the top of the card + line below it
+    """ Render name in the top of the card + line below it
     """
     img = card['_img']
     draw = card['_draw']
-    # TBD: should font be created here?
     font = card['_assets']['font_name']
     color = card['_colors']['fill']
-    margin = int(img.size[0] / 20)
-    draw.text((margin, margin), card['Empire'], font=font, fill=color)
+    margin = 0.05 # of image x size
+    margin = int(margin * img.size[0])
+    text = f"{str(card['Number'])} {card['Empire']}"
+    draw.text((margin, margin), text, font=font, fill=color)
     line_points = [(margin, 2 * margin + font.size), (img.size[0] - margin, 2 * margin + font.size)]
+    line_width = 0.025
+    line_width = int(line_width * img.size[0])
     draw.line(
         line_points,
         fill=color,
-        width=int(img.size[0] / 40)
+        width=line_width
     )
 
 
 def render_symbol(card):
-    # draw a symbol
+    """ Draw the symbol to bottom left corner
+    """
     img = card['_img']
     draw = card['_draw']
     loc = (0.02, 0.855)
     size = (0.2, 0.2)
     line_width = 0.025
-    # translate
+    # translate to pixels
     loc = scale_rxy_to_xy(img, loc)
     # size is scaled by x-axis length
     size = (img.size[0] * size[0], img.size[0] * size[1])
@@ -98,8 +100,10 @@ def render_influence_color(card):
     draw.rectangle([loc1, loc2], fill=card["_colors"]["Neutral"])
 
 
-def render_achievement(card):
-    # draw a line around achievement text
+def render_influence(card):
+    """ Influence is the bottom part of the card
+    """
+    # draw a line around the text
     img = card['_img']
     draw = card['_draw']
     margin = 0
@@ -125,12 +129,13 @@ def render_achievement(card):
 
 
 def render_description(card):
-    # draw description
+    """ Draw card description, if any
+    """
     if card['Description'] == "":
         return
     img = card['_img']
     font = card['_assets']['font_body']
-    rxy = (0.22, 0.22)
+    rxy = (0.05, 0.65)
     render_text_with_assets(
         rxy,
         text=card['Description'],
@@ -139,73 +144,50 @@ def render_description(card):
         text_color=card['_colors']['fill'],
         assets=card["_assets"],
         align="left",
-        max_width=0.45
+        max_width=0.6
     )
 
 
-def render_card_number(card):
-    # TBD: change location and size of the number
-    img = card['_img']
-    draw = card['_draw']
-    loc = (0.05, 0.71)
-    x, y = scale_rxy_to_xy(img, loc)
-    color = card['_colors']['fill']
-    #font = card['_assets']['font_name']
-    font = ImageFont.truetype(ASSETS['font_file'], size=50)
-    txt = str(card['Number'])
-    #text_size = draw.textsize(txt, font=font)
-    draw.text((x, y), txt, font=font, fill=color)
-
-
-def render_points_with_asset(points, img, asset, x, y, step_y, step_x=0):
-    x = int(x)
-    y = int(y)
-    step_x = int(step_x)
-    step_y = int(step_y)
-    for _ in range(0, points):
-        img.paste(asset, (x, y))
-        y += step_y
-        x += step_x
-    return y
-
-
-def render_swords(card):
+def render_number(card):
+    """ Draw the big number to the middle of card
+    """
     # draw swords to left part of the image
     img = card['_img']
-    rxy = (0.05, 0.2)
+    draw = card['_draw']
+    font = ImageFont.truetype(card['_assets']['font_file'], size=200)
+    color = card['_colors']['fill']
+    text = f"{str(card['Number'])}"
+    text_size_x, text_size_y = draw.textsize(text, font=font)
+    rxy = (0.5, 0.4)
     x, y = scale_rxy_to_xy(img, rxy)
-    points = card['Swords']
-    if points > 5:
-        asset = card['_assets']['sword_small']
-    else:
-        asset = card['_assets']['sword']
-    step_y = asset.size[1] + int(x / 2)
-    y = render_points_with_asset(points, img, asset, x, y, step_y)
+    x -= text_size_x/2
+    y -= text_size_y/2
+    draw.text((x, y), text, font=font, fill=color)
 
 
 def render_card(card):
-    # create the card image
+    """ create the card image
+    """
     img = Image.new('RGB', card['_size'], color=card['_colors']['empire'])
     draw = ImageDraw.Draw(img)
     card['_img'] = img
     card['_draw'] = draw
     render_influence_color(card)
     render_card_name(card)
-    render_card_number(card)
-    render_swords(card)
     render_symbol(card)
+    render_number(card)
     render_description(card)
-    render_achievement(card)
+    render_influence(card)
 
 
-cards = load_card_data()
-with open(CARD_JSON_PATH, 'w') as outfile:
-    json.dump(cards, outfile)
-rcards = [make_renderable_card(card) for card in cards]
-# render each card
-from pathlib import Path
-Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
-for card in rcards:
-    render_card(card)
-    img = card['_img']
-    img.save(f"{OUTPUT_PATH}/card_{card['Number']}.png", "PNG")
+if __name__ == "__main__":
+    cards = load_card_data()
+    rcards = [make_renderable_card(card) for card in cards]
+    # create output path
+    from pathlib import Path
+    Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
+    # render each card
+    for card in rcards:
+        render_card(card)
+        img = card['_img']
+        img.save(f"{OUTPUT_PATH}/card_{card['Number']}.png", "PNG")

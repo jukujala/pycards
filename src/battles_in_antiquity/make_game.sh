@@ -3,7 +3,7 @@
 # Create card image files
 python generate_playing_cards.py
 python generate_victory_cards.py
-python generate_blood_cards.py
+python generate_people_cards.py
 
 # Convert card images to Tabletop Simulator (TTS) deck templates
 python -m tts_utils.create_tts_deck \
@@ -17,9 +17,9 @@ python -m tts_utils.create_tts_deck \
     --output data/deck_template_battle_victory
 
 python -m tts_utils.create_tts_deck \
-    --input data/blood_cards \
-    --back data/deck_back_blood.png \
-    --output data/deck_template_blood
+    --input data/people_cards \
+    --back data/deck_back_people.png \
+    --output data/deck_template_people
 
 # Create PDF file for Print & play
 python -m pycards.pdf \
@@ -38,12 +38,12 @@ python -m tgc_utils.convert_card_images \
   --output ./data/battle_victory_cards_tgc
 
 python -m tgc_utils.convert_card_images \
-  --input ./data/blood_cards \
-  --output ./data/blood_cards_tgc
+  --input ./data/people_cards \
+  --output ./data/people_cards_tgc
 
 # convert deck backs for TGC
 mkdir -p data/card_backs/
-cp data/deck_back_blood.png data/card_backs/
+cp data/deck_back_people.png data/card_backs/
 cp data/deck_back_playing.png data/card_backs/
 cp data/deck_back_victory.png data/card_backs/
 python -m tgc_utils.convert_card_images \
@@ -64,6 +64,6 @@ python -m tgc_utils.convert_card_images \
 #  --secrets_json tgc_secrets.json
 
 #python -m tgc_utils.upload_cards \
-#  --input ./data/blood_cards_tgc \
+#  --input ./data/people_cards_tgc \
 #  --deck_id B9892DD4-3119-11EC-891E-ADB957AF5381 \
 #  --secrets_json tgc_secrets.json
