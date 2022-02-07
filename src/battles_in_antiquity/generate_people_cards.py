@@ -14,7 +14,7 @@ from generate_playing_cards import render_number
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1uMlrzOGldP95ieGV_JgjAXGa8-0BGRpbLVZZwAo0_60"
+CARD_SHEET_ID = "1gjJNhvw3X7_eHBC5uItVEW_v6JVI4GYjZoILhL58v9o"
 CARD_SHEET_NAME = "People_cards"
 OUTPUT_PATH = "data/people_cards"
 
@@ -47,7 +47,7 @@ def render_card(card):
     draw = ImageDraw.Draw(img)
     card['_img'] = img
     card['_draw'] = draw
-    card['Number'] = card["First line"]
+    card['Power'] = card["First line"]
     render_number(card)
     render_line(card, (0.5, 0.62), text=card["Second line"])
 

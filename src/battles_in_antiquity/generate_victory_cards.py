@@ -13,7 +13,7 @@ from renderable_card import make_renderable_card
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1uMlrzOGldP95ieGV_JgjAXGa8-0BGRpbLVZZwAo0_60"
+CARD_SHEET_ID = "1gjJNhvw3X7_eHBC5uItVEW_v6JVI4GYjZoILhL58v9o"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -43,10 +43,38 @@ def render_card_name(card):
     )
 
 
+def render_influence(card):
+    """ Influence is the bottom part of the card
+    """
+    # draw a line around the text
+    img = card['_img']
+    draw = card['_draw']
+    margin = 0
+    size_y = img.size[1] - int(img.size[1] / 1.2)
+    draw.line(
+        [(margin, img.size[1] - size_y),
+         (img.size[0] - margin, img.size[1] - size_y)],
+        fill=card['_colors']['fill'],
+        width=int(img.size[0] / 40),
+        joint="curve"
+    )
+    # draw the influence text
+    txt = card['Influence']
+    xy = (0.5, 5.5 / 6.0)
+    render_text_with_assets(
+        xy,
+        txt,
+        img,
+        font=card['_assets']['font_body'],
+        text_color=card['_colors']['fill'],
+        assets=card['_assets']
+    )
+
+
 def render_description(card):
     img = card['_img']
     font = card['_assets']['font_body']
-    rxy = (0.5, 0.5)
+    rxy = (0.875, 0.075)
     render_text_with_assets(
         rxy,
         text=card['Description'],
@@ -67,6 +95,7 @@ def render_card(card):
     card['_draw'] = draw
     render_card_name(card)
     render_description(card)
+    render_influence(card)
 
 
 cards = load_card_data()
@@ -77,7 +106,7 @@ for card in rcards:
     for _ in range(0, card['Card count']):
         render_card(card)
         img = card['_img']
-        img.save(f"{OUTPUT_PATH}/card_{i}.png", "PNG")
+        img.save(f"{OUTPUT_PATH}/card_land_{i}.png", "PNG")
         i += 1
 
 # Render card back images

@@ -12,7 +12,7 @@ from renderable_card import make_renderable_card
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1uMlrzOGldP95ieGV_JgjAXGa8-0BGRpbLVZZwAo0_60"
+CARD_SHEET_ID = "1gjJNhvw3X7_eHBC5uItVEW_v6JVI4GYjZoILhL58v9o"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -35,7 +35,7 @@ def render_card_name(card):
     color = card['_colors']['fill']
     margin = 0.05 # of image x size
     margin = int(margin * img.size[0])
-    text = f"{str(card['Number'])} {card['Empire']}"
+    text = f"{card['Power']} {card['Empire']}"
     draw.text((margin, margin), text, font=font, fill=color)
     line_points = [(margin, 2 * margin + font.size), (img.size[0] - margin, 2 * margin + font.size)]
     line_width = 0.025
@@ -135,7 +135,7 @@ def render_description(card):
         return
     img = card['_img']
     font = card['_assets']['font_body']
-    rxy = (0.05, 0.65)
+    rxy = (0.05, 0.75)
     render_text_with_assets(
         rxy,
         text=card['Description'],
@@ -156,7 +156,7 @@ def render_number(card):
     draw = card['_draw']
     font = ImageFont.truetype(card['_assets']['font_file'], size=200)
     color = card['_colors']['fill']
-    text = f"{str(card['Number'])}"
+    text = f"{card['Power']}"
     text_size_x, text_size_y = draw.textsize(text, font=font)
     rxy = (0.5, 0.4)
     x, y = scale_rxy_to_xy(img, rxy)
@@ -190,4 +190,4 @@ if __name__ == "__main__":
     for card in rcards:
         render_card(card)
         img = card['_img']
-        img.save(f"{OUTPUT_PATH}/card_{card['Number']}.png", "PNG")
+        img.save(f"{OUTPUT_PATH}/card_{card['id']}.png", "PNG")

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+rm ./data/playing_cards/*
+rm ./data/playing_cards_tgc/*
+
 # Create card image files
 python generate_playing_cards.py
 python generate_victory_cards.py
@@ -22,9 +25,13 @@ python -m tts_utils.create_tts_deck \
     --output data/deck_template_people
 
 # Create PDF file for Print & play
+PDF=./data/pdf
+mkdir -p $PDF/all_card_images
+rm $PDF/all_card_images/*
+cp ./data/playing_cards/* ./data/battle_victory_cards/* $PDF/all_card_images/
 python -m pycards.pdf \
-  --input ./data/playing_cards/ \
-  --output ./data/pdf/playing_cards.pdf
+  --input $PDF/all_card_images \
+  --output $PDF/playing_cards.pdf
 
 # Convert all decks to TGC format
 # We'll create separate decks, because deck backs are different
@@ -43,9 +50,11 @@ python -m tgc_utils.convert_card_images \
 
 # convert deck backs for TGC
 mkdir -p data/card_backs/
-cp data/deck_back_people.png data/card_backs/
+rm ./data/card_backs/*
+rm ./data/card_backs_tgc/*
 cp data/deck_back_playing.png data/card_backs/
 cp data/deck_back_victory.png data/card_backs/
+cp data/deck_back_people.png data/card_backs/
 python -m tgc_utils.convert_card_images \
   --input ./data/card_backs/  \
   --output ./data/card_backs_tgc
