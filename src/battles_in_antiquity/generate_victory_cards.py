@@ -71,19 +71,39 @@ def render_influence(card):
     )
 
 
-def render_description(card):
+def render_base_influence(card):
     img = card['_img']
     font = card['_assets']['font_body']
     rxy = (0.875, 0.075)
     render_text_with_assets(
         rxy,
-        text=card['Description'],
+        text=card['Base Influence'],
         img=img,
         font=font,
         text_color=card['_colors']['fill'],
         assets=card["_assets"],
         align="center",
         max_width=0.85
+    )
+
+
+def render_text(card):
+    """ Draw card description, if any
+    """
+    if card['Text'] == "":
+        return
+    img = card['_img']
+    font = card['_assets']['font_body']
+    rxy = (0.05, 0.2)
+    render_text_with_assets(
+        rxy,
+        text=card['Text'],
+        img=img,
+        font=font,
+        text_color=card['_colors']['fill'],
+        assets=card["_assets"],
+        align="left",
+        max_width=0.6
     )
 
 
@@ -94,7 +114,8 @@ def render_card(card):
     card['_img'] = img
     card['_draw'] = draw
     render_card_name(card)
-    render_description(card)
+    render_base_influence(card)
+    render_text(card)
     render_influence(card)
 
 
