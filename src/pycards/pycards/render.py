@@ -54,7 +54,7 @@ def transform_text_to_components(draw, text, font, assets):
 def render_text_with_assets(rxy, text, img, font, text_color, assets, align="center", max_width=None):
     """ Render text that may include assets with {asset_name}
 
-    Each asset is taken from ctx and rendered centered
+    Each asset is taken from assets and rendered centered
 
     :param rxy: center point for drawing text in relative units
     :param text: text to render
@@ -81,6 +81,7 @@ def render_text_with_assets(rxy, text, img, font, text_color, assets, align="cen
         assert False, f"Unknown align: {align}"
     xnow = x0
     max_h = max([x[1] for x in w_lst])
+    max_h_txt = None
     for i, obj in enumerate(render_lst):
         if xnow > x0 and max_width is not None and xnow - x0 + w_lst[i][0] > max_width:
             xnow = x0
@@ -90,7 +91,9 @@ def render_text_with_assets(rxy, text, img, font, text_color, assets, align="cen
         if isinstance(obj, str):
             # render a string
             txt_size = draw.textsize(obj, font=font)
-            ynow = y - txt_size[1] / 2.0
+            if max_h_txt is None:
+                max_h_txt = txt_size[1] / 2.0
+            ynow = y - max_h_txt / 2.0
             draw.text(
                 (xnow, ynow),
                 obj,
