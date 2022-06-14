@@ -13,7 +13,7 @@ from renderable_card import make_renderable_card
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1gjJNhvw3X7_eHBC5uItVEW_v6JVI4GYjZoILhL58v9o"
+CARD_SHEET_ID = "1JLnhxy_ad1iijHWkNAoasU4Imuhv090b7LuvpgXw7As"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -103,7 +103,7 @@ def render_text(card):
         text_color=card['_colors']['fill'],
         assets=card["_assets"],
         align="left",
-        max_width=0.6
+        max_width=0.8
     )
 
 
