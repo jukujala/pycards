@@ -68,7 +68,7 @@ def render_text_with_assets(rxy, text, img, font, text_color, assets, align="cen
     # calculate full width to be rendered
     w = sum([x[0] for x in w_lst])
     if max_width is not None:
-        max_width = max_width * img.size[1]
+        max_width = max_width * img.size[0]
         if w > max_width:
             w = max_width
     # calculate starting x position
@@ -77,13 +77,15 @@ def render_text_with_assets(rxy, text, img, font, text_color, assets, align="cen
         x0 = x - w / 2.0
     elif align == "left":
         x0 = x
+    elif align == "right":
+        x0 = x - w
     else:
         assert False, f"Unknown align: {align}"
     xnow = x0
     max_h = max([x[1] for x in w_lst])
-    max_h_txt = None
     for i, obj in enumerate(render_lst):
         if xnow > x0 and max_width is not None and xnow - x0 + w_lst[i][0] > max_width:
+            # go to new line
             xnow = x0
             y = y + max_h
             if isinstance(obj, str) and obj == " ":
@@ -91,9 +93,7 @@ def render_text_with_assets(rxy, text, img, font, text_color, assets, align="cen
         if isinstance(obj, str):
             # render a string
             txt_size = draw.textsize(obj, font=font)
-            if max_h_txt is None:
-                max_h_txt = txt_size[1] / 2.0
-            ynow = y - max_h_txt / 2.0
+            ynow = y - max_h / 2.0
             draw.text(
                 (xnow, ynow),
                 obj,
@@ -129,4 +129,3 @@ def divide_text_to_lines(draw, width, text, font):
         rest2 = divide_text_to_lines(draw, width, rest, font)
         return beg + "\n" + rest2
     return text
-
