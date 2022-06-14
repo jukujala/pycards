@@ -9,7 +9,7 @@ import random
 
 
 def scale_rxy_to_xy(img, rxy):
-    """ Scale relative coordinates (like 0.3) to physical pixels in an image
+    """Scale relative coordinates (like 0.3) to physical pixels in an image
 
     :param img:
     :param rxy: tuple of relative position in img, so (rx, ry) where elements
@@ -21,8 +21,9 @@ def scale_rxy_to_xy(img, rxy):
     xy = (img.size[0] * rxy[0], img.size[1] * rxy[1])
     return xy
 
+
 def transform_text_to_components(draw, text, font, assets):
-    """ Transform text with assets to list of individual components: texts and images
+    """Transform text with assets to list of individual components: texts and images
 
     :param text: example "hmmm is this a {duck}" where duck refers to image in assets dict
     :param font: font used in rendering, needed for sizes
@@ -51,8 +52,10 @@ def transform_text_to_components(draw, text, font, assets):
     return (render_lst, w_lst)
 
 
-def render_text_with_assets(rxy, text, img, font, text_color, assets, align="center", max_width=None):
-    """ Render text that may include assets with {asset_name}
+def render_text_with_assets(
+    rxy, text, img, font, text_color, assets, align="center", max_width=None
+):
+    """Render text that may include assets with {asset_name}
 
     Each asset is taken from assets and rendered centered
 
@@ -94,22 +97,17 @@ def render_text_with_assets(rxy, text, img, font, text_color, assets, align="cen
             # render a string
             txt_size = draw.textsize(obj, font=font)
             ynow = y - max_h / 2.0
-            draw.text(
-                (xnow, ynow),
-                obj,
-                font=font,
-                fill=text_color
-            )
+            draw.text((xnow, ynow), obj, font=font, fill=text_color)
             xnow += txt_size[0]
         else:
             # render an asset image
             ynow = y - obj.size[1] / 2.0
-            img.paste(obj, (int(xnow), int(ynow)), obj.convert('RGBA'))
+            img.paste(obj, (int(xnow), int(ynow)), obj.convert("RGBA"))
             xnow += obj.size[0]
 
 
 def divide_text_to_lines(draw, width, text, font):
-    """ Divide text to lines if text exceeds width
+    """Divide text to lines if text exceeds width
 
     :param width: in pixels the maximum width
     :param text: the text to render
@@ -125,7 +123,7 @@ def divide_text_to_lines(draw, width, text, font):
                 space_i = i
             i += 1
         beg = text[0:space_i]
-        rest = text[space_i + 1:len(text)]
+        rest = text[space_i + 1 : len(text)]
         rest2 = divide_text_to_lines(draw, width, rest, font)
         return beg + "\n" + rest2
     return text

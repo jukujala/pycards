@@ -9,7 +9,7 @@ import pandas as pd
 
 
 def download_gsheets(sheet_id, sheet_name):
-    """ Download data from one Google Sheets
+    """Download data from one Google Sheets
 
     :param sheet_id: sheet ID, is in the URL of the sheet, for example:
       https://docs.google.com/spreadsheets/d/<sheet ID is here>
@@ -19,4 +19,3 @@ def download_gsheets(sheet_id, sheet_name):
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     df = pd.read_csv(url, keep_default_na=False)
     return df
-
