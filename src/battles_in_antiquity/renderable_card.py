@@ -24,7 +24,7 @@ EMPIRE_COLORS = {
 }
 
 EMPIRE_FILL_COLORS = {
-    "Neutral": "white",
+    "Neutral": "black",
     "Egypt": "black",
     "Persia": "white",
     "Greece": "white",

@@ -14,22 +14,14 @@ ASSETS = {
     "influence_big": Image.open("assets/trophy.png").resize(
         ASSET_SIZE_HUGE, Image.BILINEAR
     ),
-    "neg_influence_small": Image.open("assets/death-skull.png").resize(
-        ASSET_SIZE_SMALL, Image.BILINEAR
-    ),
-    "neg_influence": Image.open("assets/death-skull.png").resize(
-        ASSET_SIZE, Image.BILINEAR
-    ),
     "noble": Image.open("assets/crown2.png").resize(ASSET_SIZE, Image.BILINEAR),
     "slave": Image.open("assets/manacles.png").resize(ASSET_SIZE, Image.BILINEAR),
     "soldier": Image.open("assets/soldier.png").resize(ASSET_SIZE, Image.BILINEAR),
-    "soldier_big": Image.open("assets/soldier.png").resize(
-        ASSET_SIZE_HUGE, Image.BILINEAR
-    ),
+    "trimeme": Image.open("assets/trimeme3.png").resize(ASSET_SIZE, Image.BILINEAR),
 }
 # generate fonts
 # fonts: https://www.urbanfonts.com/fonts/greek-fonts.htm
-FONT_FILE = "assets/GRECOromanLubedWrestling.ttf"
+FONT_FILE = "assets/times.ttf"
 ASSETS["font_file"] = FONT_FILE
 ASSETS["font_big"] = ImageFont.truetype(FONT_FILE, size=50)
 ASSETS["font_name"] = ImageFont.truetype(FONT_FILE, size=40)

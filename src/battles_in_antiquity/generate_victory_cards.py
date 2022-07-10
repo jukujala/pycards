@@ -17,7 +17,7 @@ from renderable_card import make_renderable_card
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1JLnhxy_ad1iijHWkNAoasU4Imuhv090b7LuvpgXw7As"
+CARD_SHEET_ID = "1R-NGZEoLoH_i4O8JFOlXAWnCZd01hPV9qMy2BodhisQ"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -36,8 +36,18 @@ def render_card_name(card):
     draw = card["_draw"]
     font = card["_assets"]["font_name"]
     color = card["_colors"]["fill"]
-    margin = int(img.size[0] / 20)
-    draw.text((margin, margin), card["Name"], font=font, fill=color)
+    margin = int(0.05 * img.size[0])
+    xy = (0.05, 0.07)
+    #draw.text((margin, margin), card["Name"], font=font, fill=color)
+    render_text_with_assets(
+        xy,
+        card["Name"],
+        img,
+        font=font,
+        text_color=card["_colors"]["fill"],
+        assets=card["_assets"],
+        align="left"
+    )
     line_points = [
         (margin, 2 * margin + font.size),
         (img.size[0] - margin, 2 * margin + font.size),
@@ -71,18 +81,18 @@ def render_influence(card):
     )
 
 
-def render_base_influence(card):
+def render_battle_power(card):
     img = card["_img"]
     font = card["_assets"]["font_body"]
-    rxy = (0.875, 0.075)
+    rxy = (0.05, 0.77)
     render_text_with_assets(
         rxy,
-        text=card["Base Influence"],
+        text=card["Battle power"],
         img=img,
         font=font,
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
-        align="center",
+        align="left",
         max_width=0.85,
     )
 
@@ -113,9 +123,9 @@ def render_card(card):
     card["_img"] = img
     card["_draw"] = draw
     render_card_name(card)
-    render_base_influence(card)
-    render_text(card)
+    #render_text(card)
     render_influence(card)
+    render_battle_power(card)
 
 
 cards = load_card_data()

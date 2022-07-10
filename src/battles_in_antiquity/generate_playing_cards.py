@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1JLnhxy_ad1iijHWkNAoasU4Imuhv090b7LuvpgXw7As"
+CARD_SHEET_ID = "1R-NGZEoLoH_i4O8JFOlXAWnCZd01hPV9qMy2BodhisQ"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -57,13 +57,6 @@ def render_card_power(card):
     color = card["_colors"]["fill"]
     text_empire = f"{card['Empire']}"
     text_power = f"{card['Power']}"
-    if len(card["Extra power"]) > 0:
-        text_extra = f"{card['Power']}{card['Extra power']}"
-        font_extra = ImageFont.truetype(ASSETS["font_file"], size=40)
-        text_power = f"{card['Power']}*"
-    else:
-        text_extra = text_power
-        font_extra = ImageFont.truetype(ASSETS["font_file"], size=60)
     render_text_with_assets(
         (0.95, 0.08),
         text_empire,
@@ -75,32 +68,22 @@ def render_card_power(card):
     )
     render_text_with_assets(
         (0.05, 0.08),
-        text_extra,
+        text_power,
         img,
-        font=font_extra,
+        font=font,
         text_color=color,
         assets=card["_assets"],
         align="left",
     )
-    # render_text_with_assets((0.05, 0.92), text_power, img, font=font, text_color=color, assets=card['_assets'], align="left")
-    render_text_with_assets(
-        (0.95, 0.92),
-        text_power,
-        img,
-        font=font,
-        text_color="black",
-        assets=card["_assets"],
-        align="right",
-    )
 
 
 def render_spoils_of_war(card):
-    """Draw the symbol and potential influence"""
+    """Draw the spoils of war, for example symbol"""
     img = card["_img"]
     draw = card["_draw"]
     loc = (0.05, 0.92)
     if len(card["Influence"]) > 0:
-        txt = f"{card['Influence']} {card['Symbol']}"
+        txt = f"{card['Symbol']}: {card['Influence']}"
     else:
         txt = f"{card['Symbol']}"
     render_text_with_assets(
@@ -108,7 +91,7 @@ def render_spoils_of_war(card):
         txt,
         img,
         font=card["_assets"]["font_body"],
-        text_color=card["_colors"]["fill"],
+        text_color="black",
         assets=card["_assets"],
         align="left",
     )
@@ -161,24 +144,6 @@ def render_image(card):
     img.paste(card_img, loc, card_img.convert("RGBA"))
 
 
-def render_number(card):
-    """Draw the big number to the middle of card"""
-    img = card["_img"]
-    draw = card["_draw"]
-    font = ImageFont.truetype(card["_assets"]["font_file"], size=150)
-    text = f"{card['Power']}"
-    text_size_x, text_size_y = draw.textsize(text, font=font)
-    rxy = (0.5, 0.69)
-    x, y = scale_rxy_to_xy(img, rxy)
-    x -= text_size_x / 2
-    y -= text_size_y / 2
-    img = img.convert("RGBA")
-    txt_img = Image.new("RGBA", img.size, (255, 255, 255, 0))
-    txt_draw = ImageDraw.Draw(txt_img)
-    txt_draw.text((x, y), text, fill=(0, 0, 0, 35), font=font)
-    card["_img"] = Image.alpha_composite(img, txt_img)
-
-
 def render_description(card):
     """Render card power and Empire"""
     img = card["_img"]
@@ -186,7 +151,6 @@ def render_description(card):
     font = ImageFont.truetype(ASSETS["font_file"], size=20)
     color = card["_colors"]["fill"]
     text = card["Description"]
-    # print(text)
     render_text_with_assets(
         (0.05, 0.618),
         text,
@@ -207,10 +171,8 @@ def render_card(card):
     card["_draw"] = draw
     render_bottom_stripe(card)
     render_card_power(card)
-    # render_extra_power(card)
     render_spoils_of_war(card)
     render_image(card)
-    # render_number(card)
     render_description(card)
 
 
