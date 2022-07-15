@@ -2,7 +2,7 @@
 """
 from assets import ASSETS
 
-CARD_SIZE = (400, 600)
+CARD_SIZE = (825, 1125)
 
 # matching colors designer:
 # https://coolors.co/00a693-703529-c8bfc7-7a9b76-8a7e72

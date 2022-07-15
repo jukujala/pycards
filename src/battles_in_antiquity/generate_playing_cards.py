@@ -52,8 +52,8 @@ def render_card_power(card):
     """Render card power and Empire"""
     img = card["_img"]
     draw = card["_draw"]
-    font = ImageFont.truetype(ASSETS["font_file"], size=60)
-    font_empire = ImageFont.truetype(ASSETS["font_file"], size=40)
+    font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_3"])
+    font_empire = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_2"])
     color = card["_colors"]["fill"]
     text_empire = f"{card['Empire']}"
     text_power = f"{card['Power']}"
@@ -148,11 +148,11 @@ def render_description(card):
     """Render card power and Empire"""
     img = card["_img"]
     draw = card["_draw"]
-    font = ImageFont.truetype(ASSETS["font_file"], size=20)
+    font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_1"])
     color = card["_colors"]["fill"]
     text = card["Description"]
     render_text_with_assets(
-        (0.05, 0.618),
+        (0.05, 0.65),
         text,
         img,
         font=font,
