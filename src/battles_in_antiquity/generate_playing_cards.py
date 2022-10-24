@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1R-NGZEoLoH_i4O8JFOlXAWnCZd01hPV9qMy2BodhisQ"
+CARD_SHEET_ID = "1uPaipaUGqYcVef3TOzLmEMPg8BcCCKaaAaetzPUV2Js"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -67,7 +67,7 @@ def render_card_power(card):
         align="right",
     )
     render_text_with_assets(
-        (0.05, 0.08),
+        (0.05, 0.07),
         text_power,
         img,
         font=font,
@@ -81,7 +81,8 @@ def render_spoils_of_war(card):
     """Draw the spoils of war, for example symbol"""
     img = card["_img"]
     draw = card["_draw"]
-    loc = (0.05, 0.92)
+    #loc = (0.03, 0.925)
+    loc = (0.00, 1-(1-0.85)/2)
     if len(card["Influence"]) > 0:
         txt = f"{card['Symbol']}: {card['Influence']}"
     else:
@@ -134,6 +135,7 @@ def render_image(card):
     img = card["_img"]
     url = card["Image"]
     img_fn = get_local_file_from_url(url)
+    logging.info(f"opening {img_fn}")
     card_img = Image.open(img_fn)
     loc = (0.00, 0.15)
     # scale card image width to card width

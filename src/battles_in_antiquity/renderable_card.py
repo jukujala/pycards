@@ -3,6 +3,7 @@
 from assets import ASSETS
 
 CARD_SIZE = (825, 1125)
+SQUARE_CARD_SIZE = (900, 900)
 
 # matching colors designer:
 # https://coolors.co/00a693-703529-c8bfc7-7a9b76-8a7e72
@@ -45,5 +46,6 @@ def make_renderable_card(card):
     colors.update(EMPIRE_COLORS)
     card["_colors"] = colors
     card["_size"] = CARD_SIZE
+    card["_square_size"] = SQUARE_CARD_SIZE
     card["_assets"] = ASSETS
     return card

@@ -17,7 +17,7 @@ from renderable_card import make_renderable_card
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1R-NGZEoLoH_i4O8JFOlXAWnCZd01hPV9qMy2BodhisQ"
+CARD_SHEET_ID = "1uPaipaUGqYcVef3TOzLmEMPg8BcCCKaaAaetzPUV2Js" 
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -37,8 +37,7 @@ def render_card_name(card):
     font = card["_assets"]["font_name"]
     color = card["_colors"]["fill"]
     margin = int(0.05 * img.size[0])
-    xy = (0.05, 0.07)
-    #draw.text((margin, margin), card["Name"], font=font, fill=color)
+    xy = (0.07, 0.09)
     render_text_with_assets(
         xy,
         card["Name"],
@@ -61,7 +60,7 @@ def render_influence(card):
     img = card["_img"]
     draw = card["_draw"]
     margin = 0
-    size_y = img.size[1] - int(img.size[1] / 1.2)
+    size_y = img.size[1] - int(0.8*img.size[1])
     draw.line(
         [(margin, img.size[1] - size_y), (img.size[0] - margin, img.size[1] - size_y)],
         fill=card["_colors"]["fill"],
@@ -70,7 +69,7 @@ def render_influence(card):
     )
     # draw the influence text
     txt = card["Influence"]
-    xy = (0.5, 5.5 / 6.0)
+    xy = (0.5, 5.4 / 6.0)
     render_text_with_assets(
         xy,
         txt,
@@ -81,10 +80,27 @@ def render_influence(card):
     )
 
 
+def render_symbol(card):
+    """Draw the symbol to bottom left"""
+    img = card["_img"]
+    draw = card["_draw"]
+    loc = (0.8, 0.09)
+    txt = f"{card['Symbol']}"
+    render_text_with_assets(
+        loc,
+        txt,
+        img,
+        font=card["_assets"]["font_body"],
+        text_color="black",
+        assets=card["_assets"],
+        align="left",
+    )
+
+
 def render_battle_power(card):
     img = card["_img"]
     font = card["_assets"]["font_body"]
-    rxy = (0.05, 0.77)
+    rxy = (0.05, 0.25)
     render_text_with_assets(
         rxy,
         text=card["Battle power"],
@@ -97,35 +113,16 @@ def render_battle_power(card):
     )
 
 
-def render_text(card):
-    """Draw card description, if any"""
-    if card["Text"] == "":
-        return
-    img = card["_img"]
-    font = card["_assets"]["font_body"]
-    rxy = (0.05, 0.2)
-    render_text_with_assets(
-        rxy,
-        text=card["Text"],
-        img=img,
-        font=font,
-        text_color=card["_colors"]["fill"],
-        assets=card["_assets"],
-        align="left",
-        max_width=0.8,
-    )
-
-
 def render_card(card):
     # create the card image
-    img = Image.new("RGB", card["_size"], color=card["_colors"]["empire"])
+    img = Image.new("RGB", card["_square_size"], color=card["_colors"]["empire"])
     draw = ImageDraw.Draw(img)
     card["_img"] = img
     card["_draw"] = draw
     render_card_name(card)
-    #render_text(card)
     render_influence(card)
     render_battle_power(card)
+    render_symbol(card)
 
 
 cards = load_card_data()
