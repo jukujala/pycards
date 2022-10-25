@@ -12,6 +12,8 @@ Card statistics are defined in this
 [Google sheet](https://docs.google.com/spreadsheets/d/1Q8gs-XEURbsVB43OSe1DDL_W3T7tPryzOr-oUkxydbE/edit?usp=sharing), 
 but any CSV would work.
 Asset images are in the [assets](assets) folder.
+Card thematic art is created with
+[Stable Diffusion AI generated art model](https://github.com/huggingface/diffusers).
 
 [make_game.sh](make_game.sh)
 has examples of all code for different types of play testing:
@@ -54,6 +56,12 @@ which does the following:
 
 Example output image:
 ![image info](./data/examples/example_victory_card.png).
+
+## Generate thematic art with AI
+
+    python generate_art_assets.py
+
+Warning: installing requirements, including model weights, can be tricky.
 
 ## PDF: print & play
 
