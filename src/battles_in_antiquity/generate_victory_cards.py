@@ -2,6 +2,10 @@
 """
 import argparse
 import json
+import logging
+import os
+import uuid
+import urllib
 import pandas as pd
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -14,6 +18,9 @@ from pycards.render import (
 
 from assets import ASSETS
 from renderable_card import make_renderable_card
+
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
@@ -30,13 +37,25 @@ def load_card_data():
     return cards
 
 
+def get_local_file_from_url(url):
+    """Read file from URL, and use a local cached file if exists
+
+    @return path to local file name
+    """
+    local_fn = os.path.join("./cache", uuid.uuid3(uuid.NAMESPACE_URL, url).hex)
+    if not os.path.exists(local_fn):
+        logging.info(f"retrieving from {url} to {local_fn}")
+        Path(os.path.dirname(local_fn)).mkdir(parents=True, exist_ok=True)
+        urllib.request.urlretrieve(url, local_fn)
+    return local_fn
+
+
 def render_card_name(card):
     """Card name is the top of the card + line below it"""
     img = card["_img"]
     draw = card["_draw"]
     font = card["_assets"]["font_name"]
     color = card["_colors"]["fill"]
-    margin = int(0.05 * img.size[0])
     xy = (0.07, 0.09)
     render_text_with_assets(
         xy,
@@ -47,11 +66,12 @@ def render_card_name(card):
         assets=card["_assets"],
         align="left"
     )
+    margin = int((0.15*1125.0/900 - 0.027/2) * img.size[0])
     line_points = [
-        (margin, 2 * margin + font.size),
-        (img.size[0] - margin, 2 * margin + font.size),
+        (0, margin),
+        (img.size[0], margin),
     ]
-    draw.line(line_points, fill=color, width=int(img.size[0] / 40))
+    draw.line(line_points, fill=color, width=int(0.025*img.size[0]))
 
 
 def render_influence(card):
@@ -59,17 +79,18 @@ def render_influence(card):
     # draw a line around the text
     img = card["_img"]
     draw = card["_draw"]
+    btm_height = 0.15*1125.0/900
     margin = 0
-    size_y = img.size[1] - int(0.8*img.size[1])
+    size_y = int((btm_height+0.014)*img.size[1])
     draw.line(
         [(margin, img.size[1] - size_y), (img.size[0] - margin, img.size[1] - size_y)],
         fill=card["_colors"]["fill"],
-        width=int(img.size[0] / 40),
+        width=int(0.025 * img.size[0]),
         joint="curve",
     )
     # draw the influence text
     txt = card["Influence"]
-    xy = (0.5, 5.4 / 6.0)
+    xy = (0.5, 1.0 - btm_height/2)
     render_text_with_assets(
         xy,
         txt,
@@ -81,10 +102,11 @@ def render_influence(card):
 
 
 def render_symbol(card):
-    """Draw the symbol to bottom left"""
+    """Draw the symbol to top right"""
     img = card["_img"]
     draw = card["_draw"]
-    loc = (0.8, 0.09)
+    land_size = 0.15*1125.0/900
+    loc = (1-land_size, land_size/2)
     txt = f"{card['Symbol']}"
     render_text_with_assets(
         loc,
@@ -97,13 +119,13 @@ def render_symbol(card):
     )
 
 
-def render_battle_power(card):
+def render_description(card):
     img = card["_img"]
-    font = card["_assets"]["font_body"]
-    rxy = (0.05, 0.25)
+    font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_1"])
+    rxy = (0.05, 0.23)
     render_text_with_assets(
         rxy,
-        text=card["Battle power"],
+        text=card["Description"],
         img=img,
         font=font,
         text_color=card["_colors"]["fill"],
@@ -111,6 +133,22 @@ def render_battle_power(card):
         align="left",
         max_width=0.85,
     )
+
+
+def render_image(card):
+    """Draw card image"""
+    img = card["_img"]
+    url = card["Image"]
+    img_fn = get_local_file_from_url(url)
+    logging.info(f"opening {img_fn}")
+    card_img = Image.open(img_fn)
+    loc = (0.00, 0.405)
+    # scale card image width to card width
+    new_size = (img.size[0], int(img.size[0] / card_img.size[0] * card_img.size[1]))
+    card_img = card_img.resize(new_size)
+    loc = scale_rxy_to_xy(img, loc)
+    loc = [int(x) for x in loc]
+    img.paste(card_img, loc, card_img.convert("RGBA"))
 
 
 def render_card(card):
@@ -121,8 +159,9 @@ def render_card(card):
     card["_draw"] = draw
     render_card_name(card)
     render_influence(card)
-    render_battle_power(card)
+    render_description(card)
     render_symbol(card)
+    render_image(card)
 
 
 cards = load_card_data()
@@ -136,11 +175,3 @@ for card in rcards:
         img.save(f"{OUTPUT_PATH}/card_land_{i}.png", "PNG")
         i += 1
 
-# Render card back images
-back_cards = [x for x in rcards if x["Card count"] < 0]
-for card in back_cards:
-    render_card(card)
-    img = card["_img"]
-    back_output_path = Path(OUTPUT_PATH).parent.absolute()
-    filename = card["File"]
-    img.save(f"{back_output_path}/{filename}", "PNG")

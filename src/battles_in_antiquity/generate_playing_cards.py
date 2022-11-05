@@ -37,17 +37,6 @@ def load_card_data():
     return cards
 
 
-def render_bottom_stripe(card):
-    """Render stripe to bottom of the card, holds symbol and Power"""
-    img = card["_img"]
-    draw = card["_draw"]
-    loc1 = (0.0, 0.85)
-    loc2 = (1.0, 1.0)
-    loc1 = scale_rxy_to_xy(img, loc1)
-    loc2 = scale_rxy_to_xy(img, loc2)
-    draw.rectangle([loc1, loc2], fill=card["_colors"]["Neutral"])
-
-
 def render_card_power(card):
     """Render card power and Empire"""
     img = card["_img"]
@@ -58,7 +47,7 @@ def render_card_power(card):
     text_empire = f"{card['Empire']}"
     text_power = f"{card['Power']}"
     render_text_with_assets(
-        (0.95, 0.08),
+        (0.95, 0.07),
         text_empire,
         img,
         font=font_empire,
@@ -81,7 +70,6 @@ def render_spoils_of_war(card):
     """Draw the spoils of war, for example symbol"""
     img = card["_img"]
     draw = card["_draw"]
-    #loc = (0.03, 0.925)
     loc = (0.00, 1-(1-0.85)/2)
     if len(card["Influence"]) > 0:
         txt = f"{card['Symbol']}: {card['Influence']}"
@@ -147,7 +135,7 @@ def render_image(card):
 
 
 def render_description(card):
-    """Render card power and Empire"""
+    """Render card body description"""
     img = card["_img"]
     draw = card["_draw"]
     font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_1"])
@@ -171,7 +159,6 @@ def render_card(card):
     draw = ImageDraw.Draw(img)
     card["_img"] = img
     card["_draw"] = draw
-    render_bottom_stripe(card)
     render_card_power(card)
     render_spoils_of_war(card)
     render_image(card)

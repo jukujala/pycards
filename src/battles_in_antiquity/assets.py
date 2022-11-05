@@ -2,17 +2,17 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
 # create huge global dict that has all assets
-ASSET_SIZE_SMALL = (94, 94)
-ASSET_SIZE = (112, 112)
+CARD_BTM_SIZE=int(0.15*1125)
+ASSET_SIZE = (CARD_BTM_SIZE, CARD_BTM_SIZE)
 ASSETS = {
-    "artisan": Image.open("assets/artisan.png").resize(ASSET_SIZE, Image.BILINEAR),
-    "farmer": Image.open("assets/farmer3.png").resize(ASSET_SIZE, Image.BILINEAR),
-    "influence": Image.open("assets/trophy.png").resize(ASSET_SIZE, Image.BILINEAR),
-    "noble": Image.open("assets/crown2.png").resize(ASSET_SIZE, Image.BILINEAR),
-    "soldier": Image.open("assets/soldier.png").resize(ASSET_SIZE, Image.BILINEAR),
-    "egypt_land": Image.open("assets/symbol_egypt_land.png").resize(ASSET_SIZE_SMALL, Image.BILINEAR),
-    "persian_land": Image.open("assets/symbol_persia.png").resize(ASSET_SIZE_SMALL, Image.BILINEAR),
-    "greek_land": Image.open("assets/symbol_greece_land.png").resize(ASSET_SIZE_SMALL, Image.BILINEAR),
+    "artisan": Image.open("assets/symbol_sd_artisan.png").resize(ASSET_SIZE, Image.BILINEAR),
+    "farmer": Image.open("assets/symbol_sd_farmer.png").resize(ASSET_SIZE, Image.BILINEAR),
+    "influence": Image.open("assets/symbol_sd_influence.png").resize(ASSET_SIZE, Image.BILINEAR),
+    "noble": Image.open("assets/symbol_sd_noble.png").resize(ASSET_SIZE, Image.BILINEAR),
+    "soldier": Image.open("assets/symbol_sd_soldier.png").resize(ASSET_SIZE, Image.BILINEAR),
+    "egypt_land": Image.open("assets/symbol_sd_egypt.png").resize(ASSET_SIZE, Image.BILINEAR),
+    "persian_land": Image.open("assets/symbol_sd_persia.png").resize(ASSET_SIZE, Image.BILINEAR),
+    "greek_land": Image.open("assets/symbol_sd_greece.png").resize(ASSET_SIZE, Image.BILINEAR),
 }
 # generate fonts
 # fonts: https://www.urbanfonts.com/fonts/greek-fonts.htm
