@@ -24,7 +24,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1uPaipaUGqYcVef3TOzLmEMPg8BcCCKaaAaetzPUV2Js" 
+CARD_SHEET_ID = "1uPaipaUGqYcVef3TOzLmEMPg8BcCCKaaAaetzPUV2Js"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -64,14 +64,14 @@ def render_card_name(card):
         font=font,
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
-        align="left"
+        align="left",
     )
-    margin = int((0.15*1125.0/900 - 0.027/2) * img.size[0])
+    margin = int((0.15 * 1125.0 / 900 - 0.027 / 2) * img.size[0])
     line_points = [
         (0, margin),
         (img.size[0], margin),
     ]
-    draw.line(line_points, fill=color, width=int(0.025*img.size[0]))
+    draw.line(line_points, fill=color, width=int(0.025 * img.size[0]))
 
 
 def render_influence(card):
@@ -79,9 +79,9 @@ def render_influence(card):
     # draw a line around the text
     img = card["_img"]
     draw = card["_draw"]
-    btm_height = 0.15*1125.0/900
+    btm_height = 0.15 * 1125.0 / 900
     margin = 0
-    size_y = int((btm_height+0.014)*img.size[1])
+    size_y = int((btm_height + 0.014) * img.size[1])
     draw.line(
         [(margin, img.size[1] - size_y), (img.size[0] - margin, img.size[1] - size_y)],
         fill=card["_colors"]["fill"],
@@ -90,7 +90,7 @@ def render_influence(card):
     )
     # draw the influence text
     txt = card["Influence"]
-    xy = (0.5, 1.0 - btm_height/2)
+    xy = (0.5, 1.0 - btm_height / 2)
     render_text_with_assets(
         xy,
         txt,
@@ -105,8 +105,8 @@ def render_symbol(card):
     """Draw the symbol to top right"""
     img = card["_img"]
     draw = card["_draw"]
-    land_size = 0.15*1125.0/900
-    loc = (1-land_size, land_size/2)
+    land_size = 0.15 * 1125.0 / 900
+    loc = (1 - land_size, land_size / 2)
     txt = f"{card['Symbol']}"
     render_text_with_assets(
         loc,
@@ -174,4 +174,3 @@ for card in rcards:
         img = card["_img"]
         img.save(f"{OUTPUT_PATH}/card_land_{i}.png", "PNG")
         i += 1
-

@@ -70,7 +70,7 @@ def render_spoils_of_war(card):
     """Draw the spoils of war, for example symbol"""
     img = card["_img"]
     draw = card["_draw"]
-    loc = (0.00, 1-(1-0.85)/2)
+    loc = (0.00, 1 - (1 - 0.85) / 2)
     if len(card["Influence"]) > 0:
         txt = f"{card['Symbol']}: {card['Influence']}"
     else:
