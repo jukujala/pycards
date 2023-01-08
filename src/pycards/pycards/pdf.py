@@ -67,6 +67,7 @@ def combine_images_to_a4_pdf(
     # Size of one image (defaults are a poker card)
     card_w, card_h = int(image_w * dpi), int(image_h * dpi)
     images = os.listdir(input_path)
+    images.sort()
     images = [os.path.join(input_path, img) for img in images]
     images_per_page = int(width / (card_w + 2 * margin)) * int(
         height / (card_h + 2 * margin)
