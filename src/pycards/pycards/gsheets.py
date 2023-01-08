@@ -5,6 +5,7 @@
     For example gspread package depends on having the account.
 
 """
+import logging
 import pandas as pd
 
 
@@ -17,5 +18,7 @@ def download_gsheets(sheet_id, sheet_name):
     :return: Pandas DF
     """
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+    logging.info(f"downloading from {url}")
     df = pd.read_csv(url, keep_default_na=False)
     return df
+
