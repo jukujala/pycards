@@ -24,7 +24,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1uPaipaUGqYcVef3TOzLmEMPg8BcCCKaaAaetzPUV2Js"
+CARD_SHEET_ID = "10IzPyAyoVMcSRYo3InaX69p-iLcbdbHdfXpqtEbKY7M"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 

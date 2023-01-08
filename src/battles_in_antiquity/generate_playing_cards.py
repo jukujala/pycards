@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1uPaipaUGqYcVef3TOzLmEMPg8BcCCKaaAaetzPUV2Js"
+CARD_SHEET_ID = "10IzPyAyoVMcSRYo3InaX69p-iLcbdbHdfXpqtEbKY7M"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -142,14 +142,14 @@ def render_description(card):
     color = card["_colors"]["fill"]
     text = card["Description"]
     render_text_with_assets(
-        (0.05, 0.65),
+        (0.25, 0.65),
         text,
         img,
         font=font,
         text_color=color,
         assets=card["_assets"],
         align="left",
-        max_width=0.9,
+        max_width=0.7,
     )
 
 
