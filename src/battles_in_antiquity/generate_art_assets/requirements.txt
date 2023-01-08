@@ -1,0 +1,17 @@
+black
+pandas
+pillow
+pytest
+git+https://github.com/jukujala/tgc-utils@main#egg=tgc_utils
+git+https://github.com/jukujala/tts-utils@main#egg=tts_utils
+../pycards
+# set pytorch version according your system
+--extra-index-url https://download.pytorch.org/whl/cu116
+torch
+torchvision
+torchaudio 
+transformers>=4.21.0
+diffusers
+scipy 
+ftfy 
+python-slugify
