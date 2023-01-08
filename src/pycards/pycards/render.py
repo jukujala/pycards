@@ -43,12 +43,12 @@ def transform_text_to_components(draw, text, font, assets):
             asset_name = text_part.replace("{", "").replace("}", "")
             asset_part = assets[asset_name]
             render_lst.append(asset_part)
-            w_lst.append((asset_part.size[0], asset_part.size[1]))
+            w_lst.append((asset_part.size[0], asset_part.size[1], "img"))
         else:
             # its a string
             render_lst.append(text_part)
             txt_size = draw.textsize(text_part, font=font)
-            w_lst.append((txt_size[0], txt_size[1]))
+            w_lst.append((txt_size[0], txt_size[1], "text"))
     return (render_lst, w_lst)
 
 
@@ -86,6 +86,7 @@ def render_text_with_assets(
         assert False, f"Unknown align: {align}"
     xnow = x0
     max_h = max([x[1] for x in w_lst])
+    max_h_txt = max([x[1] if x[2] == "text" else 0 for x in w_lst])
     for i, obj in enumerate(render_lst):
         if xnow > x0 and max_width is not None and xnow - x0 + w_lst[i][0] > max_width:
             # go to new line
@@ -96,7 +97,7 @@ def render_text_with_assets(
         if isinstance(obj, str):
             # render a string
             txt_size = draw.textsize(obj, font=font)
-            ynow = y - max_h / 2.0
+            ynow = y - max_h_txt / 2.0
             draw.text((xnow, ynow), obj, font=font, fill=text_color)
             xnow += txt_size[0]
         else:
