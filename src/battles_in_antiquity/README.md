@@ -6,6 +6,10 @@ This is a prototype card game which uses Python for technical implementation.
 
     pip install -r requirements.txt
 
+Install
+[Tinos](https://fonts.google.com/specimen/Tinos)
+font.
+
 ## Design iteration
 
 Card statistics are defined in this

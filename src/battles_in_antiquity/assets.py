@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
 # create huge global dict that has all assets
-CARD_BTM_SIZE = int(0.15 * 1125)
+CARD_BTM_SIZE = int(0.12 * 1125)
 ASSET_SIZE = (CARD_BTM_SIZE, CARD_BTM_SIZE)
 ASSETS = {
     "artisan": Image.open("assets/symbol_sd_artisan.png").resize(
@@ -31,9 +31,10 @@ ASSETS = {
     ),
 }
 # generate fonts
-# fonts: https://www.urbanfonts.com/fonts/greek-fonts.htm
-FONT_FILE = "assets/times.ttf"
+# Install https://fonts.google.com/specimen/Tinos
+FONT_FILE = "Tinos-Regular"
 ASSETS["font_file"] = FONT_FILE
+ASSETS["font_italic_file"] = "Tinos-Italic"
 ASSETS["font_big"] = ImageFont.truetype(FONT_FILE, size=94)
 ASSETS["font_name"] = ImageFont.truetype(FONT_FILE, size=75)
 ASSETS["font_body"] = ImageFont.truetype(FONT_FILE, size=56)

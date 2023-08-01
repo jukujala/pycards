@@ -105,8 +105,8 @@ def render_symbol(card):
     """Draw the symbol to top right"""
     img = card["_img"]
     draw = card["_draw"]
-    land_size = 0.15 * 1125.0 / 900
-    loc = (1 - land_size, land_size / 2)
+    land_size = 0.10 * 1125.0 / 900
+    loc = (0.96 - land_size, 0.02 + land_size / 2)
     txt = f"{card['Symbol']}"
     render_text_with_assets(
         loc,
@@ -121,7 +121,7 @@ def render_symbol(card):
 
 def render_description(card):
     img = card["_img"]
-    font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_1"])
+    font = ImageFont.truetype(ASSETS["font_italic_file"], size=ASSETS["font_size_1"])
     rxy = (0.05, 0.23)
     render_text_with_assets(
         rxy,

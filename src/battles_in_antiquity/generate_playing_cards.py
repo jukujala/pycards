@@ -70,39 +70,19 @@ def render_spoils_of_war(card):
     """Draw the spoils of war, for example symbol"""
     img = card["_img"]
     draw = card["_draw"]
-    loc = (0.00, 1 - (1 - 0.85) / 2)
-    if len(card["Influence"]) > 0:
-        txt = f"{card['Symbol']}: {card['Influence']}"
-    else:
-        txt = f"{card['Symbol']}"
-    render_text_with_assets(
-        loc,
-        txt,
-        img,
-        font=card["_assets"]["font_body"],
-        text_color="black",
-        assets=card["_assets"],
-        align="left",
-    )
-
-
-def render_extra_power(card):
-    """Draw card description, if any"""
-    if card["Extra power"] == "":
-        return
-    img = card["_img"]
-    font = card["_assets"]["font_body"]
-    rxy = (0.05, 0.15)
-    render_text_with_assets(
-        rxy,
-        text=card["Extra power"],
-        img=img,
-        font=font,
-        text_color=card["_colors"]["fill"],
-        assets=card["_assets"],
-        align="left",
-        max_width=0.8,
-    )
+    loc1 = (0.03, 0.97 - (1 - 0.9) / 2)
+    loc2 = (0.25, 0.075)
+    txt = f"{card['Symbol']}"
+    for loc in [loc1, loc2]:
+        render_text_with_assets(
+            loc,
+            txt,
+            img,
+            font=card["_assets"]["font_body"],
+            text_color="black",
+            assets=card["_assets"],
+            align="left",
+        )
 
 
 def get_local_file_from_url(url):
@@ -138,18 +118,18 @@ def render_description(card):
     """Render card body description"""
     img = card["_img"]
     draw = card["_draw"]
-    font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_1"])
+    font = ImageFont.truetype(ASSETS["font_italic_file"], size=ASSETS["font_size_1"])
     color = card["_colors"]["fill"]
     text = card["Description"]
     render_text_with_assets(
-        (0.25, 0.65),
+        (0.03, 0.64),
         text,
         img,
         font=font,
         text_color=color,
         assets=card["_assets"],
         align="left",
-        max_width=0.7,
+        max_width=0.94,
     )
 
 
