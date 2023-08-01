@@ -15,7 +15,7 @@ python -m tts_utils.create_tts_deck \
 
 python -m tts_utils.create_tts_deck \
     --input data/battle_victory_cards \
-    --back data/deck_back_victory.png \
+    --back data/deck_back_victory_square.png \
     --output data/deck_template_battle_victory
 
 # Create PDF file for Print & play
@@ -42,17 +42,24 @@ python -m tgc_utils.convert_card_images \
 
 python -m tgc_utils.convert_card_images \
   --input ./data/battle_victory_cards \
-  --output ./data/battle_victory_cards_tgc
+  --output ./data/battle_victory_cards_tgc \
+  --size euro_square_card
 
 # convert deck backs for TGC
 mkdir -p data/card_backs/
+mkdir -p data/card_backs_square/
 rm ./data/card_backs/*
+rm ./data/card_backs_square/*
 rm ./data/card_backs_tgc/*
 cp data/deck_back_playing.png data/card_backs/
-cp data/deck_back_victory.png data/card_backs/
+cp data/deck_back_victory_square.png data/card_backs_square/
 python -m tgc_utils.convert_card_images \
   --input ./data/card_backs/  \
   --output ./data/card_backs_tgc
+python -m tgc_utils.convert_card_images \
+  --input ./data/card_backs_square/  \
+  --output ./data/card_backs_tgc \
+  --size euro_square_card
 
 # Note: commented out the upload to TGC, because you need your own account
 # and JSON with account secrets with it.
@@ -66,4 +73,3 @@ python -m tgc_utils.convert_card_images \
 #  --input ./data/battle_victory_cards_tgc \
 #  --deck_id B892253E-3119-11EC-891E-A4B957AF5381 \
 #  --secrets_json tgc_secrets.json
-
