@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "10IzPyAyoVMcSRYo3InaX69p-iLcbdbHdfXpqtEbKY7M"
+CARD_SHEET_ID = "15ZkaE7g8PwXXRfxdD_t793lHmEd8fJ4ehDakjZvdmMo"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
