@@ -24,7 +24,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "15ZkaE7g8PwXXRfxdD_t793lHmEd8fJ4ehDakjZvdmMo"
+CARD_SHEET_ID = "11FqSyOLDyBDkY4o2KdQ3VWAgvo_JmEqNhw4Z4d6Fo7U"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -95,7 +95,7 @@ def render_influence(card):
         xy,
         txt,
         img,
-        font=card["_assets"]["font_body"],
+        font=card["_assets"]["font_name"],
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
     )
