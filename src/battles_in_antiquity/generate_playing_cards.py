@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "15ZkaE7g8PwXXRfxdD_t793lHmEd8fJ4ehDakjZvdmMo"
+CARD_SHEET_ID = "11FqSyOLDyBDkY4o2KdQ3VWAgvo_JmEqNhw4Z4d6Fo7U"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -42,18 +42,17 @@ def render_card_power(card):
     img = card["_img"]
     draw = card["_draw"]
     font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_3"])
-    font_empire = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_2"])
     color = card["_colors"]["fill"]
-    text_empire = f"{card['Empire']}"
+    text_empire = f"{card['Empire_symbol']}"
     text_power = f"{card['Power']}"
     render_text_with_assets(
-        (0.95, 0.07),
+        (0.85, 0.085),
         text_empire,
         img,
-        font=font_empire,
+        font=font,
         text_color=color,
         assets=card["_assets"],
-        align="right",
+        align="left",
     )
     render_text_with_assets(
         (0.05, 0.07),
@@ -64,14 +63,23 @@ def render_card_power(card):
         assets=card["_assets"],
         align="left",
     )
+    render_text_with_assets(
+        (0.95, 0.9),
+        text_power,
+        img,
+        font=font,
+        text_color=color,
+        assets=card["_assets"],
+        align="right",
+    )
 
 
 def render_spoils_of_war(card):
     """Draw the spoils of war, for example symbol"""
     img = card["_img"]
     draw = card["_draw"]
-    loc1 = (0.03, 0.97 - (1 - 0.9) / 2)
-    loc2 = (0.25, 0.075)
+    loc1 = (0.03, 0.91)
+    loc2 = (0.68, 0.085)
     txt = f"{card['Symbol']}"
     for loc in [loc1, loc2]:
         render_text_with_assets(
@@ -105,7 +113,7 @@ def render_image(card):
     img_fn = get_local_file_from_url(url)
     logging.info(f"opening {img_fn}")
     card_img = Image.open(img_fn)
-    loc = (0.00, 0.15)
+    loc = (0.00, 0.18)
     # scale card image width to card width
     new_size = (img.size[0], int(img.size[0] / card_img.size[0] * card_img.size[1]))
     card_img = card_img.resize(new_size)
