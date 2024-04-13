@@ -70,7 +70,7 @@ def render_text_with_assets(
     :return: None, the text is rendered to img
     """
     draw = ImageDraw.Draw(img)
-    text = text.encode('utf-8').decode('unicode-escape')
+    text = text.encode("utf-8").decode("unicode-escape")
     render_lst, w_lst = transform_text_to_components(draw, text, font, assets)
     if len(render_lst) == 0:
         return
@@ -95,14 +95,16 @@ def render_text_with_assets(
     max_h_txt = max([x[1] if x[2] == "text" else 0 for x in w_lst])
     current_has_img = False
     for i, obj in enumerate(render_lst):
-        if (xnow > x0 and max_width is not None and xnow - x0 + w_lst[i][0] > max_width) or obj == "\n":
+        if (
+            xnow > x0 and max_width is not None and xnow - x0 + w_lst[i][0] > max_width
+        ) or obj == "\n":
             # go to new line
             xnow = x0
             next_lst = [(0.0, 0.0, "dummy")]
             # find if next line has an asset, if yes use max_h, otherwise max_h_txt
             # ok should refactor to a fancy recursive planning function
             next_has_img = False
-            for j in range(i+1, len(w_lst)):
+            for j in range(i + 1, len(w_lst)):
                 if w_lst[j][2] == "img":
                     next_has_img = True
                 next_lst.append(w_lst[j])
@@ -111,13 +113,13 @@ def render_text_with_assets(
                     break
             skip_h = 0
             if next_has_img:
-                skip_h += 0.5*max_h
+                skip_h += 0.5 * max_h
             else:
-                skip_h += 0.5*max_h_txt
+                skip_h += 0.5 * max_h_txt
             if current_has_img:
-                skip_h += 0.5*max_h
+                skip_h += 0.5 * max_h
             else:
-                skip_h += 0.5*max_h_txt
+                skip_h += 0.5 * max_h_txt
             current_has_img = False
             y = y + skip_h
             if isinstance(obj, str) and (obj == " " or obj == "\n"):
