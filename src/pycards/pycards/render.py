@@ -16,9 +16,12 @@ def scale_rxy_to_xy(img, rxy):
       are floats in range [0.0, 1.0]
     :return:
     """
+    if isinstance(rxy, list):
+        return [scale_rxy_to_xy(img, item) for item in rxy]
     assert 0.0 <= rxy[0] <= 1.0
     assert 0.0 <= rxy[1] <= 1.0
     xy = (img.size[0] * rxy[0], img.size[1] * rxy[1])
+    xy = (int(xy[0]), int(xy[1]))
     return xy
 
 
@@ -31,7 +34,7 @@ def transform_text_to_components(draw, text, font, assets):
     :return: tuple (list of components: strings or images, list of (w, h) of components)
     """
     # split input text to list of individual elements
-    text_lst = re.split(r"(\{[0-9A-Za-z _]+\})|(\s+)", text)
+    text_lst = re.split(r"(\{[0-9A-Za-z _]+\})|([ ]+)|(\n)", text)
     text_lst = [x for x in text_lst if x is not None and x != ""]
     # w_lst maintains list of widths of the elements in text_lst
     w_lst = []
@@ -48,6 +51,8 @@ def transform_text_to_components(draw, text, font, assets):
             # its a string
             render_lst.append(text_part)
             txt_size = draw.textsize(text_part, font=font)
+            if text_part.find("\n") > -1:
+                txt_size = (0, 0)
             w_lst.append((txt_size[0], txt_size[1], "text"))
     return (render_lst, w_lst)
 
@@ -65,6 +70,7 @@ def render_text_with_assets(
     :return: None, the text is rendered to img
     """
     draw = ImageDraw.Draw(img)
+    text = text.encode('utf-8').decode('unicode-escape')
     render_lst, w_lst = transform_text_to_components(draw, text, font, assets)
     if len(render_lst) == 0:
         return
@@ -87,12 +93,34 @@ def render_text_with_assets(
     xnow = x0
     max_h = max([x[1] for x in w_lst])
     max_h_txt = max([x[1] if x[2] == "text" else 0 for x in w_lst])
+    current_has_img = False
     for i, obj in enumerate(render_lst):
-        if xnow > x0 and max_width is not None and xnow - x0 + w_lst[i][0] > max_width:
+        if (xnow > x0 and max_width is not None and xnow - x0 + w_lst[i][0] > max_width) or obj == "\n":
             # go to new line
             xnow = x0
-            y = y + max_h
-            if isinstance(obj, str) and obj == " ":
+            next_lst = [(0.0, 0.0, "dummy")]
+            # find if next line has an asset, if yes use max_h, otherwise max_h_txt
+            # ok should refactor to a fancy recursive planning function
+            next_has_img = False
+            for j in range(i+1, len(w_lst)):
+                if w_lst[j][2] == "img":
+                    next_has_img = True
+                next_lst.append(w_lst[j])
+                sum_w = sum([item[0] for item in next_lst])
+                if sum_w > max_width or render_lst[j] == "\n":
+                    break
+            skip_h = 0
+            if next_has_img:
+                skip_h += 0.5*max_h
+            else:
+                skip_h += 0.5*max_h_txt
+            if current_has_img:
+                skip_h += 0.5*max_h
+            else:
+                skip_h += 0.5*max_h_txt
+            current_has_img = False
+            y = y + skip_h
+            if isinstance(obj, str) and (obj == " " or obj == "\n"):
                 continue
         if isinstance(obj, str):
             # render a string
@@ -105,6 +133,7 @@ def render_text_with_assets(
             ynow = y - obj.size[1] / 2.0
             img.paste(obj, (int(xnow), int(ynow)), obj.convert("RGBA"))
             xnow += obj.size[0]
+            current_has_img = True
 
 
 def divide_text_to_lines(draw, width, text, font):
