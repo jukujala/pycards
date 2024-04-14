@@ -2,25 +2,30 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
 # create huge global dict that has all assets
-CARD_BTM_SIZE = int(0.105 * 1125)
-ASSET_SIZE = (CARD_BTM_SIZE, CARD_BTM_SIZE)
-POP_ASSET_RATIO = 1.4
-POP_ASSET_BASE_SIZE = 86
-POP_ASSET_SIZE = (POP_ASSET_BASE_SIZE, int(POP_ASSET_RATIO*POP_ASSET_BASE_SIZE))
+
+# define asset sizes
+BASE_SIZE = int(0.105 * 1125)
+ASSET_SIZE = (BASE_SIZE, BASE_SIZE)
+SMALL_SIZE = int(0.7*BASE_SIZE)
+ASSET_SMALL_SIZE = (SMALL_SIZE, SMALL_SIZE)
+POP_ASSET_SIZE = (86, int(1.4*86))
+ARROW_SIZE = (120, int(120*0.62))
+
+
 ASSETS = {
-    "artisan": Image.open("assets/symbol_sd_artisan.png").resize(
+    "artisan": Image.open("assets/artisan.webp").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
-    "farmer": Image.open("assets/symbol_sd_farmer.png").resize(
+    "farmer": Image.open("assets/farmer_v1.png").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
     "influence": Image.open("assets/symbol_sd_influence.png").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
-    "noble": Image.open("assets/symbol_sd_noble.png").resize(
+    "noble": Image.open("assets/noble.png").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
-    "soldier": Image.open("assets/symbol_sd_soldier.png").resize(
+    "soldier": Image.open("assets/soldier.webp").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
     "egypt_land": Image.open("assets/egypt_land_v2.webp").resize(
@@ -41,6 +46,15 @@ ASSETS = {
     "persia_pop": Image.open("assets/symbol_persia_pop.png").resize(
         POP_ASSET_SIZE, Image.BILINEAR
     ),
+    "army": Image.open("assets/army_v2.png").resize(
+        ASSET_SMALL_SIZE, Image.BILINEAR
+    ),
+    "colonist": Image.open("assets/colonist_v3.png").resize(
+        ASSET_SMALL_SIZE, Image.BILINEAR
+    ),
+    "arrow": Image.open("assets/right_arrow_v2.png").resize(
+        ARROW_SIZE, Image.BILINEAR
+    ),
 }
 # generate fonts
 # Install https://fonts.google.com/specimen/Tinos
@@ -50,6 +64,7 @@ ASSETS["font_italic_file"] = "Tinos-Italic"
 ASSETS["font_big"] = ImageFont.truetype(FONT_FILE, size=94)
 ASSETS["font_name"] = ImageFont.truetype(FONT_FILE, size=75)
 ASSETS["font_body"] = ImageFont.truetype(FONT_FILE, size=56)
+ASSETS["font_small"] = ImageFont.truetype(FONT_FILE, size=38)
 ASSETS["font_size_1"] = 38
 ASSETS["font_size_2"] = 75
 ASSETS["font_size_3"] = 128

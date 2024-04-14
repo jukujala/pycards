@@ -66,11 +66,10 @@ def render_card_name(card):
         assets=card["_assets"],
         align="left",
     )
-    margin = int((0.15 * 1125.0 / 900 - 0.027 / 2) * img.size[0])
-    line_points = [
-        (0, margin),
-        (img.size[0], margin),
-    ]
+    # draw line separating top of card from the rest
+    m = 0.174
+    line_points = [(0.0, m), (1.0, m)]
+    line_points = scale_rxy_to_xy(img, line_points)
     draw.line(line_points, fill=color, width=int(0.025 * img.size[0]))
 
 
@@ -122,7 +121,7 @@ def render_symbol(card):
 def render_description(card):
     img = card["_img"]
     font = ImageFont.truetype(ASSETS["font_italic_file"], size=ASSETS["font_size_1"])
-    rxy = (0.05, 0.23)
+    rxy = (0.28, 0.23)
     render_text_with_assets(
         rxy,
         text=card["Description"],
@@ -131,7 +130,55 @@ def render_description(card):
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
         align="left",
-        max_width=0.85,
+        max_width=0.65,
+    )
+
+
+def render_instaboost(card):
+    """Instaboost goes to left side of the card"""
+    img = card["_img"]
+    draw = card["_draw"]
+    color = card["_colors"]["fill"]
+    # draw line separating left from right
+    mx = 0.237
+    my_top = 0.174
+    my_btm = 0.8
+    line_points = [(mx, my_top), (mx, my_btm)]
+    line_points = scale_rxy_to_xy(img, line_points)
+    draw.line(line_points, fill=color, width=int(0.025 * img.size[0]))
+    # write the min
+    render_text_with_assets(
+        (0.119, 0.25),
+        text="MIN",
+        img=img,
+        font=card["_assets"]["font_small"],
+        text_color=card["_colors"]["fill"],
+        assets=card["_assets"],
+    )
+    # draw the instaboost requirement
+    render_text_with_assets(
+        (0.119, 0.35),
+        text=card["Instaboost_req"],
+        img=img,
+        font=card["_assets"]["font_small"],
+        text_color=card["_colors"]["fill"],
+        assets=card["_assets"],
+        max_width=0.25,
+    )
+    # draw arrow
+    arrow_loc = (0.05, 0.43)
+    arrow_loc = scale_rxy_to_xy(img, arrow_loc)
+    arrow = ASSETS['arrow']
+    img.paste(arrow, arrow_loc, arrow.convert("RGBA"))
+    # draw instaboost reward
+    render_text_with_assets(
+        (0.125, 0.58),
+        text=card["Instaboost_reward"],
+        img=img,
+        font=card["_assets"]["font_small"],
+        text_color=card["_colors"]["fill"],
+        assets=card["_assets"],
+        max_width=0.25,
     )
 
 
@@ -142,9 +189,15 @@ def render_image(card):
     img_fn = get_local_file_from_url(url)
     logging.info(f"opening {img_fn}")
     card_img = Image.open(img_fn)
-    loc = (0.00, 0.405)
+    x_loc = 0.25
+    y_loc = 0.40*(1.0+x_loc)
+    loc = (x_loc, y_loc)
     # scale card image width to card width
-    new_size = (img.size[0], int(img.size[0] / card_img.size[0] * card_img.size[1]))
+    img_x_size = (1.0-x_loc)*img.size[0]
+    new_size = (
+      int(img_x_size), 
+      int(img_x_size / card_img.size[0] * card_img.size[1])
+    )
     card_img = card_img.resize(new_size)
     loc = scale_rxy_to_xy(img, loc)
     loc = [int(x) for x in loc]
@@ -160,6 +213,7 @@ def render_card(card):
     render_card_name(card)
     render_influence(card)
     render_description(card)
+    render_instaboost(card)
     render_symbol(card)
     render_image(card)
 

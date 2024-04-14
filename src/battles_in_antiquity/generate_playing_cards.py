@@ -37,6 +37,33 @@ def load_card_data():
     return cards
 
 
+def enrich_card_stats(cards):
+    """Add stats to each card
+    - order of card power in empire
+    - order of card power in population symbol
+
+    :return: the list of cards
+    """
+    for card in cards:
+        power_ordinal = len(
+            [
+                x
+                for x in cards
+                if x["Empire"] == card["Empire"] and x["Power"] <= card["Power"]
+            ]
+        )
+        symbol_ordinal = len(
+            [
+                x
+                for x in cards
+                if x["Symbol"] == card["Symbol"] and x["Power"] <= card["Power"]
+            ]
+        )
+        card["empire_ordinal"] = power_ordinal
+        card["symbol_ordinal"] = symbol_ordinal
+    return cards
+
+
 def render_card_power(card):
     """Render card power and Empire"""
     img = card["_img"]
@@ -72,6 +99,16 @@ def render_card_power(card):
         assets=card["_assets"],
         align="right",
     )
+    # render ordinal of card empire power
+    render_text_with_assets(
+        (0.85 + 0.05, 0.085 + 0.065),
+        text=str(card["empire_ordinal"]),
+        img=img,
+        font=card["_assets"]["font_small"],
+        text_color="black",
+        assets=card["_assets"],
+        align="center",
+    )
 
 
 def render_spoils_of_war(card):
@@ -91,6 +128,17 @@ def render_spoils_of_war(card):
             assets=card["_assets"],
             align="left",
         )
+    # render ordinal of symbol power
+    loc_ordinal = (loc2[0] + 0.07, loc2[1] + 0.065)
+    render_text_with_assets(
+        loc_ordinal,
+        text=str(card["symbol_ordinal"]),
+        img=img,
+        font=card["_assets"]["font_small"],
+        text_color="black",
+        assets=card["_assets"],
+        align="center",
+    )
 
 
 def get_local_file_from_url(url):
@@ -155,6 +203,7 @@ def render_card(card):
 
 if __name__ == "__main__":
     cards = load_card_data()
+    cards = enrich_card_stats(cards)
     rcards = [make_renderable_card(card) for card in cards]
     # create output path
     from pathlib import Path
