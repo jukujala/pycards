@@ -101,7 +101,7 @@ def render_card_power(card):
     )
     # render ordinal of card empire power
     render_text_with_assets(
-        (0.85 + 0.05, 0.085 + 0.065),
+        (0.85 + 0.055, 0.085 + 0.065),
         text=str(card["empire_ordinal"]),
         img=img,
         font=card["_assets"]["font_small"],
@@ -116,7 +116,7 @@ def render_spoils_of_war(card):
     img = card["_img"]
     draw = card["_draw"]
     loc1 = (0.03, 0.91)
-    loc2 = (0.68, 0.085)
+    loc2 = (0.72, 0.085)
     txt = f"{card['Symbol']}"
     for loc in [loc1, loc2]:
         render_text_with_assets(
@@ -129,7 +129,7 @@ def render_spoils_of_war(card):
             align="left",
         )
     # render ordinal of symbol power
-    loc_ordinal = (loc2[0] + 0.07, loc2[1] + 0.065)
+    loc_ordinal = (loc2[0] + 0.055, loc2[1] + 0.065)
     render_text_with_assets(
         loc_ordinal,
         text=str(card["symbol_ordinal"]),

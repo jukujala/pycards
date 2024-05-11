@@ -14,19 +14,19 @@ ARROW_SIZE = (120, int(120*0.62))
 
 ASSETS = {
     "artisan": Image.open("assets/artisan.webp").resize(
-        ASSET_SIZE, Image.BILINEAR
+        POP_ASSET_SIZE, Image.BILINEAR
     ),
-    "farmer": Image.open("assets/farmer_v1.png").resize(
-        ASSET_SIZE, Image.BILINEAR
+    "farmer": Image.open("assets/farmer.png").resize(
+        POP_ASSET_SIZE, Image.BILINEAR
     ),
     "influence": Image.open("assets/symbol_sd_influence.png").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
     "noble": Image.open("assets/noble.png").resize(
-        ASSET_SIZE, Image.BILINEAR
+        POP_ASSET_SIZE, Image.BILINEAR
     ),
-    "soldier": Image.open("assets/soldier.webp").resize(
-        ASSET_SIZE, Image.BILINEAR
+    "soldier": Image.open("assets/soldier.png").resize(
+        POP_ASSET_SIZE, Image.BILINEAR
     ),
     "egypt_land": Image.open("assets/egypt_land_v2.webp").resize(
         ASSET_SIZE, Image.BILINEAR
