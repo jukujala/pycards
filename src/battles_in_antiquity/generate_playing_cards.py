@@ -189,6 +189,39 @@ def render_description(card):
     )
 
 
+def render_pair_symbol_bonus(card):
+    img = card["_img"]
+    assets_small = ASSETS.copy()
+    for k,v in assets_small.copy().items():
+        if isinstance(v, Image.Image):
+            new_height = int(0.5*v.height)
+            assets_small[k] = v.resize((v.width * new_height // v.height, new_height))
+    s = card['Symbol']
+    render_text_with_assets(
+        (0.22, 0.935),
+        text=f'2x{s}',
+        img=img,
+        font=card["_assets"]["font_small"],
+        text_color=card["_colors"]["fill"],
+        assets=assets_small,
+        max_width=1.0,
+    )
+    # draw arrow
+    arrow_loc = (0.27, 0.925)
+    arrow_loc = scale_rxy_to_xy(img, arrow_loc)
+    arrow = assets_small['arrow']
+    img.paste(arrow, arrow_loc, arrow.convert("RGBA"))
+    render_text_with_assets(
+        (0.39, 0.94),
+        text=card["Pair_reward"],
+        img=img,
+        font=card["_assets"]["font_small"],
+        text_color=card["_colors"]["fill"],
+        assets=assets_small,
+        max_width=1.0,
+    )
+
+
 def render_card(card):
     """create the card image"""
     img = Image.new("RGB", card["_size"], color=card["_colors"]["empire"])
@@ -199,6 +232,7 @@ def render_card(card):
     render_spoils_of_war(card)
     render_image(card)
     render_description(card)
+    render_pair_symbol_bonus(card)
 
 
 if __name__ == "__main__":

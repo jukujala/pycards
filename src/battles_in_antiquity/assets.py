@@ -28,6 +28,9 @@ ASSETS = {
     "soldier": Image.open("assets/soldier.png").resize(
         POP_ASSET_SIZE, Image.BILINEAR
     ),
+    "pop_card": Image.open("assets/pop_card.png").resize(
+        POP_ASSET_SIZE, Image.BILINEAR
+    ),
     "egypt_land": Image.open("assets/egypt_land_v2.webp").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
@@ -35,6 +38,9 @@ ASSETS = {
         ASSET_SIZE, Image.BILINEAR
     ),
     "greek_land": Image.open("assets/greek_land_v2.webp").resize(
+        ASSET_SIZE, Image.BILINEAR
+    ),
+    "land_card": Image.open("assets/land_card.png").resize(
         ASSET_SIZE, Image.BILINEAR
     ),
     "greek_pop": Image.open("assets/symbol_greek_pop.png").resize(

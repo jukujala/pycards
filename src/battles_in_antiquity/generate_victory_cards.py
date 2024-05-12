@@ -89,7 +89,7 @@ def render_influence(card):
     )
     # draw the influence text
     txt = card["Influence"]
-    xy = (0.5, 1.0 - btm_height / 2)
+    xy = (0.237 + 0.5*(1.0-0.237), 1.0 - btm_height / 2)
     render_text_with_assets(
         xy,
         txt,
@@ -105,17 +105,18 @@ def render_symbol(card):
     img = card["_img"]
     draw = card["_draw"]
     land_size = 0.10 * 1125.0 / 900
-    loc = (0.96 - land_size, 0.02 + land_size / 2)
+    locs = [(0.835, 0.0825), (0.05, 0.90625)]
     txt = f"{card['Symbol']}"
-    render_text_with_assets(
-        loc,
-        txt,
-        img,
-        font=card["_assets"]["font_body"],
-        text_color="black",
-        assets=card["_assets"],
-        align="left",
-    )
+    for loc in locs:
+        render_text_with_assets(
+            loc,
+            txt,
+            img,
+            font=card["_assets"]["font_body"],
+            text_color="black",
+            assets=card["_assets"],
+            align="left",
+        )
 
 
 def render_description(card):
@@ -142,7 +143,7 @@ def render_instaboost(card):
     # draw line separating left from right
     mx = 0.237
     my_top = 0.174
-    my_btm = 0.8
+    my_btm = 1.0
     line_points = [(mx, my_top), (mx, my_btm)]
     line_points = scale_rxy_to_xy(img, line_points)
     draw.line(line_points, fill=color, width=int(0.025 * img.size[0]))
