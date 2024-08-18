@@ -197,8 +197,9 @@ def render_pair_symbol_bonus(card):
             new_height = int(0.5*v.height)
             assets_small[k] = v.resize((v.width * new_height // v.height, new_height))
     s = card['Symbol']
+    loc = (0.4, 0.11)
     render_text_with_assets(
-        (0.22, 0.935),
+        loc,
         text=f'2x{s}',
         img=img,
         font=card["_assets"]["font_small"],
@@ -207,12 +208,12 @@ def render_pair_symbol_bonus(card):
         max_width=1.0,
     )
     # draw arrow
-    arrow_loc = (0.27, 0.925)
+    arrow_loc = (loc[0]+0.05, loc[1]-0.01)
     arrow_loc = scale_rxy_to_xy(img, arrow_loc)
     arrow = assets_small['arrow']
     img.paste(arrow, arrow_loc, arrow.convert("RGBA"))
     render_text_with_assets(
-        (0.39, 0.94),
+        (loc[0]+0.17, loc[1]+0.005),
         text=card["Pair_reward"],
         img=img,
         font=card["_assets"]["font_small"],
