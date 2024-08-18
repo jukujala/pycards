@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "11FqSyOLDyBDkY4o2KdQ3VWAgvo_JmEqNhw4Z4d6Fo7U"
+CARD_SHEET_ID = "10lJUUloCeQQdlmtaESu6yw_tJ1UbXJjvqCXrGr6kLBI"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -128,17 +128,6 @@ def render_spoils_of_war(card):
             assets=card["_assets"],
             align="left",
         )
-    # render ordinal of symbol power
-    loc_ordinal = (loc2[0] + 0.055, loc2[1] + 0.065)
-    render_text_with_assets(
-        loc_ordinal,
-        text=str(card["symbol_ordinal"]),
-        img=img,
-        font=card["_assets"]["font_small"],
-        text_color="black",
-        assets=card["_assets"],
-        align="center",
-    )
 
 
 def get_local_file_from_url(url):
@@ -189,40 +178,6 @@ def render_description(card):
     )
 
 
-def render_pair_symbol_bonus(card):
-    img = card["_img"]
-    assets_small = ASSETS.copy()
-    for k,v in assets_small.copy().items():
-        if isinstance(v, Image.Image):
-            new_height = int(0.5*v.height)
-            assets_small[k] = v.resize((v.width * new_height // v.height, new_height))
-    s = card['Symbol']
-    loc = (0.4, 0.11)
-    render_text_with_assets(
-        loc,
-        text=f'2x{s}',
-        img=img,
-        font=card["_assets"]["font_small"],
-        text_color=card["_colors"]["fill"],
-        assets=assets_small,
-        max_width=1.0,
-    )
-    # draw arrow
-    arrow_loc = (loc[0]+0.05, loc[1]-0.01)
-    arrow_loc = scale_rxy_to_xy(img, arrow_loc)
-    arrow = assets_small['arrow']
-    img.paste(arrow, arrow_loc, arrow.convert("RGBA"))
-    render_text_with_assets(
-        (loc[0]+0.17, loc[1]+0.005),
-        text=card["Pair_reward"],
-        img=img,
-        font=card["_assets"]["font_small"],
-        text_color=card["_colors"]["fill"],
-        assets=assets_small,
-        max_width=1.0,
-    )
-
-
 def render_card(card):
     """create the card image"""
     img = Image.new("RGB", card["_size"], color=card["_colors"]["empire"])
@@ -233,7 +188,6 @@ def render_card(card):
     render_spoils_of_war(card)
     render_image(card)
     render_description(card)
-    render_pair_symbol_bonus(card)
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "11FqSyOLDyBDkY4o2KdQ3VWAgvo_JmEqNhw4Z4d6Fo7U"
+CARD_SHEET_ID = "10lJUUloCeQQdlmtaESu6yw_tJ1UbXJjvqCXrGr6kLBI"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -122,7 +122,7 @@ def render_symbol(card):
 def render_description(card):
     img = card["_img"]
     font = ImageFont.truetype(ASSETS["font_italic_file"], size=ASSETS["font_size_1"])
-    rxy = (0.28, 0.23)
+    rxy = (0.07, 0.23)
     render_text_with_assets(
         rxy,
         text=card["Description"],
@@ -131,55 +131,7 @@ def render_description(card):
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
         align="left",
-        max_width=0.65,
-    )
-
-
-def render_instaboost(card):
-    """Instaboost goes to left side of the card"""
-    img = card["_img"]
-    draw = card["_draw"]
-    color = card["_colors"]["fill"]
-    # draw line separating left from right
-    mx = 0.237
-    my_top = 0.174
-    my_btm = 1.0
-    line_points = [(mx, my_top), (mx, my_btm)]
-    line_points = scale_rxy_to_xy(img, line_points)
-    draw.line(line_points, fill=color, width=int(0.025 * img.size[0]))
-    # write the min
-    render_text_with_assets(
-        (0.119, 0.25),
-        text="MIN",
-        img=img,
-        font=card["_assets"]["font_small"],
-        text_color=card["_colors"]["fill"],
-        assets=card["_assets"],
-    )
-    # draw the instaboost requirement
-    render_text_with_assets(
-        (0.119, 0.35),
-        text=card["Instaboost_req"],
-        img=img,
-        font=card["_assets"]["font_small"],
-        text_color=card["_colors"]["fill"],
-        assets=card["_assets"],
-        max_width=0.25,
-    )
-    # draw arrow
-    arrow_loc = (0.05, 0.43)
-    arrow_loc = scale_rxy_to_xy(img, arrow_loc)
-    arrow = ASSETS['arrow']
-    img.paste(arrow, arrow_loc, arrow.convert("RGBA"))
-    # draw instaboost reward
-    render_text_with_assets(
-        (0.125, 0.58),
-        text=card["Instaboost_reward"],
-        img=img,
-        font=card["_assets"]["font_small"],
-        text_color=card["_colors"]["fill"],
-        assets=card["_assets"],
-        max_width=0.25,
+        max_width=0.85,
     )
 
 
@@ -190,8 +142,8 @@ def render_image(card):
     img_fn = get_local_file_from_url(url)
     logging.info(f"opening {img_fn}")
     card_img = Image.open(img_fn)
-    x_loc = 0.25
-    y_loc = 0.40*(1.0+x_loc)
+    x_loc = 0.0
+    y_loc = 0.41*(1.0+x_loc)
     loc = (x_loc, y_loc)
     # scale card image width to card width
     img_x_size = (1.0-x_loc)*img.size[0]
@@ -214,7 +166,6 @@ def render_card(card):
     render_card_name(card)
     render_influence(card)
     render_description(card)
-    render_instaboost(card)
     render_symbol(card)
     render_image(card)
 
