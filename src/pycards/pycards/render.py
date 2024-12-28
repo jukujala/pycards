@@ -58,7 +58,15 @@ def transform_text_to_components(draw, text, font, assets):
 
 
 def render_text_with_assets(
-    rxy, text, img, font, text_color, assets, align="center", max_width=None
+    rxy,
+    text,
+    img,
+    font,
+    text_color,
+    assets,
+    align="center",
+    max_width=None,
+    transpose=False,
 ):
     """Render text that may include assets with {asset_name}
 
@@ -128,11 +136,18 @@ def render_text_with_assets(
             # render a string
             txt_size = draw.textsize(obj, font=font)
             ynow = y - max_h_txt / 2.0
-            draw.text((xnow, ynow), obj, font=font, fill=text_color)
+            tmp_image = Image.new("RGBA", txt_size, (255, 255, 255, 0))
+            tmp_draw = ImageDraw.Draw(tmp_image)
+            tmp_draw.text((0, 0), obj, font=font, fill=text_color)
+            if transpose:
+                tmp_image = tmp_image.transpose(Image.ROTATE_180)
+            img.paste(tmp_image, (int(xnow), int(ynow)), tmp_image.convert("RGBA"))
             xnow += txt_size[0]
         else:
             # render an asset image
             ynow = y - obj.size[1] / 2.0
+            if transpose:
+                obj = obj.transpose(Image.ROTATE_180)
             img.paste(obj, (int(xnow), int(ynow)), obj.convert("RGBA"))
             xnow += obj.size[0]
             current_has_img = True
