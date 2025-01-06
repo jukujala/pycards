@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "10lJUUloCeQQdlmtaESu6yw_tJ1UbXJjvqCXrGr6kLBI"
+CARD_SHEET_ID = "1YVZUa1WtUdZ_PUKa_wcbDGsMzIBcTFvF8CXPGL6XBIc"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -37,33 +37,6 @@ def load_card_data():
     return cards
 
 
-def enrich_card_stats(cards):
-    """Add stats to each card
-    - order of card power in empire
-    - order of card power in population symbol
-
-    :return: the list of cards
-    """
-    for card in cards:
-        power_ordinal = len(
-            [
-                x
-                for x in cards
-                if x["Empire"] == card["Empire"] and x["Power"] <= card["Power"]
-            ]
-        )
-        symbol_ordinal = len(
-            [
-                x
-                for x in cards
-                if x["Symbol"] == card["Symbol"] and x["Power"] <= card["Power"]
-            ]
-        )
-        card["empire_ordinal"] = power_ordinal
-        card["symbol_ordinal"] = symbol_ordinal
-    return cards
-
-
 def render_card_power(card):
     """Render card power and Empire"""
     img = card["_img"]
@@ -72,6 +45,8 @@ def render_card_power(card):
     color = card["_colors"]["fill"]
     text_empire = f"{card['Empire_symbol']}"
     text_power = f"{card['Power']}"
+    if text_power in ["6", "9"]:
+        text_power += "."
     render_text_with_assets(
         (0.85, 0.085),
         text_empire,
@@ -91,42 +66,32 @@ def render_card_power(card):
         align="left",
     )
     render_text_with_assets(
-        (0.95, 0.9),
+        (0.95, 0.93),
         text_power,
         img,
         font=font,
         text_color=color,
         assets=card["_assets"],
         align="right",
+        transpose=True,
     )
-    # render ordinal of card empire power
-    render_text_with_assets(
-        (0.85 + 0.055, 0.085 + 0.065),
-        text=str(card["empire_ordinal"]),
-        img=img,
-        font=card["_assets"]["font_small"],
-        text_color="black",
-        assets=card["_assets"],
-        align="center",
-    )
-
-
-def render_spoils_of_war(card):
-    """Draw the spoils of war, for example symbol"""
-    img = card["_img"]
-    draw = card["_draw"]
-    loc1 = (0.03, 0.91)
-    loc2 = (0.72, 0.085)
+    # render symbol
+    text_power_size = draw.textsize(text_power, font=font)
+    loc1 = (0.07 + float(text_power_size[0]) / img.size[0], 0.085)
+    loc2 = (0.83 - float(text_power_size[0]) / img.size[0], 0.915)
+    locs = [loc1, loc2]
+    transposes = [False, True]
     txt = f"{card['Symbol']}"
-    for loc in [loc1, loc2]:
+    for i in range(0, len(locs)):
         render_text_with_assets(
-            loc,
+            locs[i],
             txt,
             img,
             font=card["_assets"]["font_body"],
             text_color="black",
             assets=card["_assets"],
             align="left",
+            transpose=transposes[i],
         )
 
 
@@ -185,14 +150,12 @@ def render_card(card):
     card["_img"] = img
     card["_draw"] = draw
     render_card_power(card)
-    render_spoils_of_war(card)
     render_image(card)
     render_description(card)
 
 
 if __name__ == "__main__":
     cards = load_card_data()
-    cards = enrich_card_stats(cards)
     rcards = [make_renderable_card(card) for card in cards]
     # create output path
     from pathlib import Path
