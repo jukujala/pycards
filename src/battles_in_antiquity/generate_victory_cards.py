@@ -24,7 +24,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1YVZUa1WtUdZ_PUKa_wcbDGsMzIBcTFvF8CXPGL6XBIc"
+CARD_SHEET_ID = "1bLPVxgh8mL05laSJVYHttllCCbu1cLB8pBYcC3X-fN0"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -89,7 +89,7 @@ def render_influence(card):
     )
     # draw the influence text
     txt = card["Influence"]
-    xy = (0.237 + 0.5*(1.0-0.237), 1.0 - btm_height / 2)
+    xy = (0.5, 1.0 - btm_height / 2)
     render_text_with_assets(
         xy,
         txt,
@@ -98,25 +98,6 @@ def render_influence(card):
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
     )
-
-
-def render_symbol(card):
-    """Draw the symbol to top right"""
-    img = card["_img"]
-    draw = card["_draw"]
-    land_size = 0.10 * 1125.0 / 900
-    locs = [(0.835, 0.0825), (0.05, 0.90625)]
-    txt = f"{card['Symbol']}"
-    for loc in locs:
-        render_text_with_assets(
-            loc,
-            txt,
-            img,
-            font=card["_assets"]["font_body"],
-            text_color="black",
-            assets=card["_assets"],
-            align="left",
-        )
 
 
 def render_description(card):
@@ -166,7 +147,6 @@ def render_card(card):
     render_card_name(card)
     render_influence(card)
     render_description(card)
-    render_symbol(card)
     render_image(card)
 
 

@@ -27,9 +27,19 @@ EMPIRE_COLORS = {
 EMPIRE_FILL_COLORS = {
     "Neutral": "black",
     "Egypt": "black",
-    "Persia": "white",
+    "Persia": "black",
     "Greece": "white",
 }
+
+# blending factor with white to make a lighter version of a color
+COLOR_BLENDING_FACTOR = 0.25
+
+
+def blend_white(factor, orig_color):
+    new_color = tuple(
+        int((1.0 - factor) * float(x) + factor * 255.0) for x in orig_color
+    )
+    return new_color
 
 
 def make_renderable_card(card):
@@ -43,6 +53,7 @@ def make_renderable_card(card):
     # fill color is used for eg lines / text rendered to the card
     colors["fill"] = EMPIRE_FILL_COLORS[card["Empire"]]
     colors["empire"] = EMPIRE_COLORS[card["Empire"]]
+    colors["empire_light"] = blend_white(COLOR_BLENDING_FACTOR, colors["empire"])
     colors.update(EMPIRE_COLORS)
     card["_colors"] = colors
     card["_size"] = CARD_SIZE

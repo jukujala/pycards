@@ -23,7 +23,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1YVZUa1WtUdZ_PUKa_wcbDGsMzIBcTFvF8CXPGL6XBIc"
+CARD_SHEET_ID = "1bLPVxgh8mL05laSJVYHttllCCbu1cLB8pBYcC3X-fN0"
 CARD_SHEET_NAME = "Master"
 # Card images go to OUTPUT_PATH
 OUTPUT_PATH = "data/playing_cards"
@@ -42,20 +42,10 @@ def render_card_power(card):
     img = card["_img"]
     draw = card["_draw"]
     font = ImageFont.truetype(ASSETS["font_file"], size=ASSETS["font_size_3"])
-    color = card["_colors"]["fill"]
-    text_empire = f"{card['Empire_symbol']}"
+    color = "black"
     text_power = f"{card['Power']}"
     if text_power in ["6", "9"]:
         text_power += "."
-    render_text_with_assets(
-        (0.85, 0.085),
-        text_empire,
-        img,
-        font=font,
-        text_color=color,
-        assets=card["_assets"],
-        align="left",
-    )
     render_text_with_assets(
         (0.05, 0.07),
         text_power,
@@ -128,24 +118,24 @@ def render_description(card):
     """Render card body description"""
     img = card["_img"]
     draw = card["_draw"]
-    font = ImageFont.truetype(ASSETS["font_italic_file"], size=ASSETS["font_size_1"])
-    color = card["_colors"]["fill"]
-    text = card["Description"]
+    font = ImageFont.truetype(ASSETS["font_italic_file"], size=ASSETS["font_size_2"])
+    color = "black"
+    text = card["Short_description"]
     render_text_with_assets(
-        (0.03, 0.64),
+        (0.08, 0.68),
         text,
         img,
         font=font,
         text_color=color,
         assets=card["_assets"],
         align="left",
-        max_width=0.94,
+        max_width=0.82,
     )
 
 
 def render_card(card):
     """create the card image"""
-    img = Image.new("RGB", card["_size"], color=card["_colors"]["empire"])
+    img = Image.new("RGB", card["_size"], color=card["_colors"]["empire_light"])
     draw = ImageDraw.Draw(img)
     card["_img"] = img
     card["_draw"] = draw
