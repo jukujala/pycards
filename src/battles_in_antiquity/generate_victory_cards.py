@@ -24,7 +24,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "10_djnH1GDt37UVcxruFXFsugjBhgbZ9l8-bhWj078bw"
+CARD_SHEET_ID = "1SBszdtR50-RH5mjgSKMIsXi8aPfAW0u0YVCUwtN1Wsw"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -89,7 +89,7 @@ def render_influence(card):
     )
     # draw the influence text
     txt = card["Influence"]
-    xy = (0.5, 1.0 - btm_height / 2)
+    xy = (0.2, 1.0 - btm_height / 2)
     render_text_with_assets(
         xy,
         txt,
@@ -97,6 +97,27 @@ def render_influence(card):
         font=card["_assets"]["font_name"],
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
+        assets_padding=2,
+    )
+    # Draw line between influence and secondary influence
+    x_influence_box = int((0.4 - 0.01/2)*img.size[0])
+    draw.line(
+        [(x_influence_box, img.size[1] - size_y), (x_influence_box, img.size[1])],
+        fill=card["_colors"]["fill"],
+        width=int(0.01 * img.size[0]),
+        joint="curve",
+    )
+    # Draw secondary influence
+    txt = card["Secondary_influence"]
+    xy = (0.7, 1.0 - btm_height / 2)
+    render_text_with_assets(
+        xy,
+        txt,
+        img,
+        font=card["_assets"]["font_name"],
+        text_color=card["_colors"]["fill"],
+        assets=card["_assets"],
+        assets_padding=2,
     )
 
 
@@ -138,6 +159,23 @@ def render_image(card):
     img.paste(card_img, loc, card_img.convert("RGBA"))
 
 
+def render_symbol(card):
+    """Draw the symbol to top right"""
+    img = card["_img"]
+    draw = card["_draw"]
+    loc = (0.835, 0.0825)
+    txt = f"{card['Symbol']}"
+    render_text_with_assets(
+        loc,
+        txt,
+        img,
+        font=card["_assets"]["font_body"],
+        text_color="black",
+        assets=card["_assets"],
+        align="left",
+    )
+
+
 def render_card(card):
     # create the card image
     img = Image.new("RGB", card["_square_size"], color=card["_colors"]["empire"])
@@ -148,6 +186,7 @@ def render_card(card):
     render_influence(card)
     render_description(card)
     render_image(card)
+    render_symbol(card)
 
 
 cards = load_card_data()
