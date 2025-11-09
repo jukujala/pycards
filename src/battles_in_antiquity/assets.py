@@ -4,13 +4,13 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 # create huge global dict that has all assets
 
 # define asset sizes
-BASE_SIZE = int(0.081 * 1125)
-ASSET_SIZE = (BASE_SIZE, BASE_SIZE)
-SMALL_SIZE = int(0.67 * BASE_SIZE)
-ASSET_SMALL_SIZE = (SMALL_SIZE, SMALL_SIZE)
-POP_ASSET_SIZE = (69, int(1.4 * 79))
-ARROW_SIZE = (SMALL_SIZE, int(SMALL_SIZE * 0.62))
+BASE_SIZE = int(0.105 * 1125)
 
+ASSET_SIZE = (BASE_SIZE, BASE_SIZE)
+SMALL_SIZE = int(0.7 * BASE_SIZE)
+ARROW_SIZE = (120, int(120 * 0.62))
+POP_ASSET_SIZE = (86, int(1.4 * 86))
+ASSET_SMALL_SIZE = (SMALL_SIZE, SMALL_SIZE)
 
 ASSETS = {
     "artisan": Image.open("assets/artisan.webp").resize(POP_ASSET_SIZE, Image.BILINEAR),
@@ -59,4 +59,3 @@ ASSETS["font_body"] = ImageFont.truetype(FONT_FILE, size=50)
 ASSETS["font_small"] = ImageFont.truetype(FONT_FILE, size=38)
 ASSETS["font_size_1"] = 38
 ASSETS["font_size_2"] = 44
-ASSETS["font_size_3"] = 128

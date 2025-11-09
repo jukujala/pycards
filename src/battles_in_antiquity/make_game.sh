@@ -10,12 +10,12 @@ python generate_victory_cards.py
 # Convert card images to Tabletop Simulator (TTS) deck templates
 python -m tts_utils.create_tts_deck \
     --input data/playing_cards \
-    --back data/deck_back_playing.png \
+    --back data/playing_back.png \
     --output data/deck_template_playing_cards/
 
 python -m tts_utils.create_tts_deck \
     --input data/battle_victory_cards \
-    --back data/deck_back_victory_square.png \
+    --back data/land_back.png \
     --output data/deck_template_battle_victory
 
 # Create PDF file for Print & play
@@ -38,7 +38,8 @@ python -m pycards.pdf \
 # and we don't bother to use unique deck backs.
 python -m tgc_utils.convert_card_images \
   --input ./data/playing_cards \
-  --output ./data/playing_cards_tgc
+  --output ./data/playing_cards_tgc \
+  --size mini_card
 
 python -m tgc_utils.convert_card_images \
   --input ./data/battle_victory_cards \
@@ -51,11 +52,12 @@ mkdir -p data/card_backs_square/
 rm ./data/card_backs/*
 rm ./data/card_backs_square/*
 rm ./data/card_backs_tgc/*
-cp data/deck_back_playing.png data/card_backs/
-cp data/deck_back_victory_square.png data/card_backs_square/
+cp data/playing_back.png data/card_backs/
+cp data/land_back.png data/card_backs_square/
 python -m tgc_utils.convert_card_images \
   --input ./data/card_backs/  \
-  --output ./data/card_backs_tgc
+  --output ./data/card_backs_tgc \
+  --size mini_card
 python -m tgc_utils.convert_card_images \
   --input ./data/card_backs_square/  \
   --output ./data/card_backs_tgc \

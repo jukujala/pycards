@@ -2,7 +2,7 @@
 """
 from assets import ASSETS
 
-CARD_SIZE = (825, 1125)
+CARD_SIZE = (600, 825)
 SQUARE_CARD_SIZE = (900, 900)
 
 # matching colors designer:
@@ -53,7 +53,6 @@ def make_renderable_card(card):
     # fill color is used for eg lines / text rendered to the card
     colors["fill"] = EMPIRE_FILL_COLORS[card["Empire"]]
     colors["empire"] = EMPIRE_COLORS[card["Empire"]]
-    colors["empire_light"] = blend_white(COLOR_BLENDING_FACTOR, colors["empire"])
     colors.update(EMPIRE_COLORS)
     card["_colors"] = colors
     card["_size"] = CARD_SIZE

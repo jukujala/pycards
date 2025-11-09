@@ -24,7 +24,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 
 # Cards are defined in this Google sheet
-CARD_SHEET_ID = "1SBszdtR50-RH5mjgSKMIsXi8aPfAW0u0YVCUwtN1Wsw"
+CARD_SHEET_ID = "1qYNwHMERHQISjJfrLuz5ye5JdshRbIpQLOKu4JSdNg8"
 CARD_SHEET_NAME = "Battle_victory_cards"
 OUTPUT_PATH = "data/battle_victory_cards"
 
@@ -78,18 +78,16 @@ def render_influence(card):
     # draw a line around the text
     img = card["_img"]
     draw = card["_draw"]
-    btm_height = 0.15 * 1125.0 / 900
-    margin = 0
-    size_y = int((btm_height + 0.014) * img.size[1])
+    line_y_loc = int(0.7985* img.size[1])
     draw.line(
-        [(margin, img.size[1] - size_y), (img.size[0] - margin, img.size[1] - size_y)],
+        [(0, line_y_loc), (img.size[0], line_y_loc)],
         fill=card["_colors"]["fill"],
         width=int(0.025 * img.size[0]),
         joint="curve",
     )
     # draw the influence text
     txt = card["Influence"]
-    xy = (0.2, 1.0 - btm_height / 2)
+    xy = (0.5, 1.0 - 0.1875/2)
     render_text_with_assets(
         xy,
         txt,
@@ -98,28 +96,27 @@ def render_influence(card):
         text_color=card["_colors"]["fill"],
         assets=card["_assets"],
         assets_padding=2,
-    )
-    # Draw line between influence and secondary influence
-    x_influence_box = int((0.4 - 0.01/2)*img.size[0])
-    draw.line(
-        [(x_influence_box, img.size[1] - size_y), (x_influence_box, img.size[1])],
-        fill=card["_colors"]["fill"],
-        width=int(0.01 * img.size[0]),
-        joint="curve",
-    )
-    # Draw secondary influence
-    txt = card["Secondary_influence"]
-    xy = (0.7, 1.0 - btm_height / 2)
-    render_text_with_assets(
-        xy,
-        txt,
-        img,
-        font=card["_assets"]["font_name"],
-        text_color=card["_colors"]["fill"],
-        assets=card["_assets"],
-        assets_padding=2,
+        align="center",
     )
 
+
+def render_image(card):
+    """Draw card image"""
+    img = card["_img"]
+    url = card["Image"]
+    img_fn = get_local_file_from_url(url)
+    logging.info(f"opening {img_fn}")
+    card_img = Image.open(img_fn)
+    loc = (0, 0.41)
+    # scale card image width to card width
+    new_size = (
+      int(img.size[0]), 
+      int(card_img.size[1] / card_img.size[0] * img.size[0])
+    )
+    card_img = card_img.resize(new_size)
+    loc = scale_rxy_to_xy(img, loc)
+    loc = [int(x) for x in loc]
+    img.paste(card_img, loc, card_img.convert("RGBA"))
 
 def render_description(card):
     img = card["_img"]
@@ -137,34 +134,11 @@ def render_description(card):
     )
 
 
-def render_image(card):
-    """Draw card image"""
-    img = card["_img"]
-    url = card["Image"]
-    img_fn = get_local_file_from_url(url)
-    logging.info(f"opening {img_fn}")
-    card_img = Image.open(img_fn)
-    x_loc = 0.0
-    y_loc = 0.41*(1.0+x_loc)
-    loc = (x_loc, y_loc)
-    # scale card image width to card width
-    img_x_size = (1.0-x_loc)*img.size[0]
-    new_size = (
-      int(img_x_size), 
-      int(img_x_size / card_img.size[0] * card_img.size[1])
-    )
-    card_img = card_img.resize(new_size)
-    loc = scale_rxy_to_xy(img, loc)
-    loc = [int(x) for x in loc]
-    img.paste(card_img, loc, card_img.convert("RGBA"))
-
-
-def render_symbol(card):
-    """Draw the symbol to top right"""
+def render_point(card):
     img = card["_img"]
     draw = card["_draw"]
     loc = (0.835, 0.0825)
-    txt = f"{card['Symbol']}"
+    txt = "{influence}"
     render_text_with_assets(
         loc,
         txt,
@@ -186,7 +160,7 @@ def render_card(card):
     render_influence(card)
     render_description(card)
     render_image(card)
-    render_symbol(card)
+    render_point(card)
 
 
 cards = load_card_data()
